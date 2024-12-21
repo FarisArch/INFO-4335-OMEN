@@ -46,15 +46,36 @@ Errand runners are students who take on tasks posted by errand customers. They a
 
 ### Preferred platform
 Mobile application (Android/IOS)
-### Features
-- Post up an errand with details, locations, deadline and payment.
-- Ability for errand runners to browse and accept tasks based on filters such as location, urgency and type.
-- Manage tasks: Students can edit, cancel or mark as completed for their errands based on it's status.
-- Integration with payment system, cash and online options available.
-- User profiles for both errand runners and students with reviews.
-- Notifcation for updates and deadlines of errands.
-- Premium feature for premium users such as ad-free experience and priority listing
-- Commission based fees (5-10% of payments).
+## Features
+
+- 1.Post up an errand with details, locations, deadline and payment.
+- 2.Ability for errand runners to browse and accept tasks based on filters such as location, urgency and type.
+
+  
+---
+### 3.Manage Tasks
+- **Task Creation**: Customers input task details like description, location, due date, price, urgency, and requirements.  
+  _Example:_ A KICT student books the Human Science venue before Friday.
+- **Editing and Completion**: Customers can edit, cancel, or mark tasks as completed, with feedback.
+- **Notifications**: Runners get real-time updates to accept/decline tasks. Customers are notified of status changes.
+- **Progress Tracking**: Customers track task status (e.g., "in progress," "done"), and runners update progress.
+
+### 4.Integration with Payment System
+- **Cash/QR Payment**: Payments made in cash or via QR after task completion. Confirmation (photo/signature) triggers payment.
+- **Online Payment**: Supports FPX and Touch 'n Go e-wallet. Runners are paid automatically and can withdraw to bank/e-wallet.
+- **Transaction History**: Both customers and runners can view payment history for task-related disputes or resolution.
+
+### 5.User Profiles with Reviews
+- **Errand Customers**: Profiles include contact, preferences, past tasks, and matric card verification for legitimacy.
+- **Errand Runners**: Profiles show skills, availability, payment options, and a profile picture to build trust.
+- **Rating System**: After task completion, customers rate errand runners from 1 to 5 stars based on performance, reliability, and communication.
+
+
+
+---
+- 6.Notifcation for updates and deadlines of errands.
+- 7.Premium feature for premium users such as ad-free experience and priority listing
+- 8.Commission based fees (5-10% of payments).
 
 ## Business Model Canvas
 TODO: INSERT BMC AND ROI HERE
