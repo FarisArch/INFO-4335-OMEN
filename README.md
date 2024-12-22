@@ -13,7 +13,7 @@
 | **Engku** | - Accept GitHub repository invitation  <br> - Update Part 1 Report on Target Audience  <br> - Update Part 1 Report on Features: <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1. Manage tasks  <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2. Integration with payment system  <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3. User profiles  <br>  - Create Weekly Progress Report  <br> - Update References List  | - Create 2.3 Sequence Diagram <br> - Update Weekly Progress Report <br> - Update References list <br> - Check Full Case Study 1 Report <br> - Peer Evaluation Form <br> - Submit case study repository URL and Weekly Progress Report |
 | **Aiman** | - Accept GitHub repository invitation  <br> - Check Weekly Progress Report  <br> - Update Part 1 Report on Preferred Platform  <br> - Update Part 1 Report on Features: <br>- Check Weekly Progress Report  <br> - Update References List  | - Update 2.2 App Compatibility <br> - Create 2.3 Navigation Flow Diagram <br> - Update References list <br> - Check Weekly Progress Report <br> - Check Full Case Study 1 Report <br> - Peer Evaluation Form |
 
-##Project Initiation
+## Project Initiation
 ### Project Title
 Campus Errand Runner.
 
