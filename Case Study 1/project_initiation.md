@@ -45,7 +45,7 @@ Errand runners are students who take on tasks posted by errand customers. They a
 
 
 ### Preferred platform
-Mobile application (Android/IOS)
+- As for preferred platform, we will be focusing on Android deployment first with the minimum Android version being Android 10.
 ## Features
 
 - 1.Post up an errand with details, locations, deadline and payment.
