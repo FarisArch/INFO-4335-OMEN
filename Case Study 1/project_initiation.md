@@ -81,3 +81,21 @@ Mobile application (Android/IOS)
 TODO: INSERT BMC AND ROI HERE
 
 # Requirements Analysis
+## Technical Feasibility and backend assessment
+- The project will be utilizing the features provided by Firebase to complete requirements in our project.
+### Registeration and login
+- The project will utilize the authentication module which is provided in Firebase. Using these module, it will allow our application to be able to handle user registeration and login gracefully using Firebase authentication. The module also offers the ability to log in using other providers such as Microsoft and google email.
+### Data storage operations
+- As for the database operations, we will be utilizing the Firestore database module which is provided in Firebase. The module will be using NoSQL for the database operations.
+### Analytics
+- As for analyzing the usage and operations of the application, we will be utilizing the Analytics Dashboard.
+### Packages and plugins
+- As for the plugins and packages currently are the listed one that are essential
+```txt
+  firebase_core: ^3.6.0
+  firebase_auth: ^5.3.2
+  cloud_firestore: ^5.4.5
+```
+- The firebase_core and firebase_auth is eseential for providing connectivity to Firebase and providing authentication to users.
+- cloud_firestore will be plugin responsible for CRUD operations connectivity.
+
