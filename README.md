@@ -56,6 +56,23 @@ Errand runners are students who take on tasks posted by errand customers. They a
 - **Errand Runners:** Gain a flexible source of income while providing value to the campus community.  
 
 ---
+### 1.Manage Tasks
+- **Task Creation**: Customers input task details like description, location, due date, price, urgency, and requirements.  
+  _Example:_ A KICT student books the Human Science venue before Friday.
+- **Editing and Completion**: Customers can edit, cancel, or mark tasks as completed, with feedback.
+- **Notifications**: Runners get real-time updates to accept/decline tasks. Customers are notified of status changes.
+- **Progress Tracking**: Customers track task status (e.g., "in progress," "done"), and runners update progress.
+
+### 2.Integration with Payment System
+- **Cash/QR Payment**: Payments made in cash or via QR after task completion. Confirmation (photo/signature) triggers payment.
+- **Online Payment**: Supports FPX and Touch 'n Go e-wallet. Runners are paid automatically and can withdraw to bank/e-wallet.
+- **Transaction History**: Both customers and runners can view payment history for task-related disputes or resolution.
+
+### 3.User Profiles with Reviews
+- **Errand Customers**: Profiles include contact, preferences, past tasks, and matric card verification for legitimacy.
+- **Errand Runners**: Profiles show skills, availability, payment options, and a profile picture to build trust.
+- **Rating System**: After task completion, customers rate errand runners from 1 to 5 stars based on performance, reliability, and communication.
+
 
 ### 
 ### Gantt Chart
