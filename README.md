@@ -54,8 +54,11 @@ Errand runners are students who take on tasks posted by errand customers. They a
 ### Benefits for Both Groups  
 - **Errand Customers:** Save time and effort while ensuring their tasks are completed quickly and securely.  
 - **Errand Runners:** Gain a flexible source of income while providing value to the campus community.  
-
 ---
+### Preferred platform
+- As for preferred platform, we will be focusing on Android deployment first.
+---
+## Features
 ### 1.Manage Tasks
 - **Task Creation**: Customers input task details like description, location, due date, price, urgency, and requirements.  
   _Example:_ A KICT student books the Human Science venue before Friday.
