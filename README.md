@@ -56,7 +56,7 @@ Errand runners are students who take on tasks posted by errand customers. They a
 - **Errand Runners:** Gain a flexible source of income while providing value to the campus community.  
 ---
 ### Preferred platform
-- As for preferred platform, we will be focusing on Android deployment first.
+- As for preferred platform, we will be focusing on Android deployment first as Android has the biggest market share in Malaysia amounting to 71.56%.
 ---
 ## Features
 ### 1.Manage Tasks
@@ -121,4 +121,6 @@ Errand runners are students who take on tasks posted by errand customers. They a
 ![Navigational Flow Diagram](images/navflow.png)
 
 ---
-
+## References
+1. Mobile Operating System market Share Malaysia | StatCounter Global Stats. (n.d.). StatCounter Global Stats. https://gs.statcounter.com/os-market-share/mobile/malaysia
+2. 
