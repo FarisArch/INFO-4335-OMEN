@@ -80,7 +80,6 @@ Errand runners are students who take on tasks posted by errand customers. They a
 ### 5.Premium feature for premium users
 - **Priority task matching**: Priority queue features for premium users allow their errands to be picked up faster than normal ones.
 - **Unlimited Errands**: Normal users are limited to a number of errands per month, with premium users are allowed to create unlimited number of tasks.
-### 6.Commission based fees (5-10% of payments).
   
 ---
 ### 
