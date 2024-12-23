@@ -20,11 +20,15 @@ Campus Errand Runner.
 ### Purpose of Project
 The Campus Errand Runner app is designed to simplify daily errands for IIUM students, by creating an apps that allow students to done tasks with the help of a runner. For tasks such as collecting parcels, buying itinerary or food supplies and sending item can be done easily by hiring a runner through this app. Other than helping with errands, this app also opens for students that are needing extra money to become a runner, without the need to put any deposits or complicated registration process.
 
-
+### 
 ### Gantt Chart
 ![First part of Gantt Chart](images/gant1.png)
 ![Second part of Gantt Chart](images/gant2.png)
 ![Final part of Gantt Chart](images/gant3.png)
+
+### Sequence Diagram
+![Sequence Diagram Errand Customer](images/navflow.png)
+![Sequence Diagram Errand Runner ](images/navflow.png)
 
 ### Navigational Flow Diagram
 ![Navigational Flow Diagram](images/navflow.png)
