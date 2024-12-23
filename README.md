@@ -123,4 +123,5 @@ Errand runners are students who take on tasks posted by errand customers. They a
 ---
 ## References
 1. Mobile Operating System market Share Malaysia | StatCounter Global Stats. (n.d.). StatCounter Global Stats. https://gs.statcounter.com/os-market-share/mobile/malaysia
-2. 
+2. GeeksforGeeks. (n.d.). Unified Modeling Language (UML) Sequence Diagrams. Retrieved from https://www.geeksforgeeks.org
+3. OpenAI. (2024). ChatGPT model. Retrieved December 23, 2024, from https://chat.openai.com/
