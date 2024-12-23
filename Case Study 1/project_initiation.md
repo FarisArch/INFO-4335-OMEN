@@ -73,8 +73,13 @@ Errand runners are students who take on tasks posted by errand customers. They a
 
 
 ---
-- 6.Notifcation for updates and deadlines of errands.
-- 7.Premium feature for premium users such as ad-free experience and priority listing
+### 6.Notification for updates and deadlines of errands.
+- **Customizable notification**: Runners can customize and set the kind of tasks and errands they prefer to perform and get notified whenever there is a errand related to their choosing.
+- **Unclaimed task reminder**: Customers will receive timely reminders on their errands to ensure that errands that has not been completed or accepted by a runner, allowing them to cancel or reassign the task to ensure timely completion.
+---
+### 7.Premium feature for premium users
+- **Priority task matching**: Priority queue features for premium users allow their errands to be picked up faster than normal ones.
+- **Unlimited Errands**: Normal users are limited to a number of errands per month, with premium users are allowed to create unlimited number of tasks.
 - 8.Commission based fees (5-10% of payments).
 
 ## Business Model Canvas
