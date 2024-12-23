@@ -26,9 +26,10 @@ The Campus Errand Runner app is designed to simplify daily errands for IIUM stud
 ![Second part of Gantt Chart](images/gant2.png)
 ![Final part of Gantt Chart](images/gant3.png)
 
-### Sequence Diagram
-![Sequence Diagram Errand Customer](images/navflow.png)
-![Sequence Diagram Errand Runner ](images/navflow.png)
+### Sequence Diagram - Errand Customers
+![Sequence Diagram Errand Customer](images/SD_EC.png)
+### Sequence Diagram - Errand Runners
+![Sequence Diagram Errand Runner ](images/SD_ER.png)
 
 ### Navigational Flow Diagram
 ![Navigational Flow Diagram](images/navflow.png)
