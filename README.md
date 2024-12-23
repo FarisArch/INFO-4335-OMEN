@@ -72,8 +72,17 @@ Errand runners are students who take on tasks posted by errand customers. They a
 - **Errand Customers**: Profiles include contact, preferences, past tasks, and matric card verification for legitimacy.
 - **Errand Runners**: Profiles show skills, availability, payment options, and a profile picture to build trust.
 - **Rating System**: After task completion, customers rate errand runners from 1 to 5 stars based on performance, reliability, and communication.
+  
+### 4.Notification for updates and deadlines of errands.
+- **Customizable notification**: Runners can customize and set the kind of tasks and errands they prefer to perform and get notified whenever there is a errand related to their choosing.
+- **Unclaimed task reminder**: Customers will receive timely reminders on their errands to ensure that errands that has not been completed or accepted by a runner, allowing them to cancel or reassign the task to ensure timely completion.
 
-
+### 5.Premium feature for premium users
+- **Priority task matching**: Priority queue features for premium users allow their errands to be picked up faster than normal ones.
+- **Unlimited Errands**: Normal users are limited to a number of errands per month, with premium users are allowed to create unlimited number of tasks.
+### 6.Commission based fees (5-10% of payments).
+  
+---
 ### 
 ### Gantt Chart
 ![First part of Gantt Chart](images/gant1.png)
