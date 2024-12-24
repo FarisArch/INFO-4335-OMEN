@@ -131,6 +131,10 @@ Errand runners are students who take on tasks posted by errand customers. They a
 ### Navigational Flow Diagram
 ![Navigational Flow Diagram](images/navflow.png)
 
+### Navigational Flow with Interface
+![Navigational Flow with Interface](images/LOGIN PAGE.png)
+
+
 ---
 ## References
 1. Mobile Operating System market Share Malaysia | StatCounter Global Stats. (n.d.). StatCounter Global Stats. https://gs.statcounter.com/os-market-share/mobile/malaysia
