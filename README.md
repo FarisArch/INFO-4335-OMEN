@@ -132,15 +132,15 @@ Errand runners are students who take on tasks posted by errand customers. They a
 ![Navigational Flow Diagram](images/navflow.png)
 
 ### Navigational Flow with Interface
-- **Login Page**
+- **Login Page** <br/>
 ![User Interface](images/login.png)
-- **Sign Up Page**
+- **Sign Up Page**<br/>
 ![User Interface](images/signup.png)
-- **Student Dashboard Page**
+- **Student Dashboard Page** <br/>
 ![User Interface](images/stud_dash.png)
-- **Assign Errand Page**
+- **Assign Errand Page** <br/>
 ![User Interface](images/assign_errand.png)
-- **Errand Progress Page**
+- **Errand Progress Page** <br/>
 ![User Interface](images/errand_prog.png)
 - **Appply Runner Page**
 ![User Interface](images/apply_runner.png)
