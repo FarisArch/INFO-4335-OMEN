@@ -142,19 +142,19 @@ Errand runners are students who take on tasks posted by errand customers. They a
 ![User Interface](images/assign_errand.png)
 - **Errand Progress Page** <br/>
 ![User Interface](images/errand_prog.png)
-- **Appply Runner Page**
+- **Appply Runner Page**<br/>
 ![User Interface](images/apply_runner.png)
-- **Student Information Page**
+- **Student Information Page**<br/>
 ![User Interface](images/stud_info.png)
-- **Runner Dashboard Page**
+- **Runner Dashboard Page**<br/>
 ![User Interface](images/runner_dash.png)
-- **Available Task Page**
+- **Available Task Page**<br/>
 ![User Interface](images/available_task.png)
-- **Task Progress Page**
+- **Task Progress Page**<br/>
 ![User Interface](images/task_prog.png)
-- **Task History Page**
+- **Task History Page**<br/>
 ![User Interface](images/task_history.png)
-- **Runner Information Page**
+- **Runner Information Page**<br/>
 ![User Interface](images/runner_info.png)
 
 ---
