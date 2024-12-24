@@ -83,6 +83,17 @@ Errand runners are students who take on tasks posted by errand customers. They a
 ### 5.Premium feature for premium users
 - **Priority task matching**: Priority queue features for premium users allow their errands to be picked up faster than normal ones.
 - **Unlimited Errands**: Normal users are limited to a number of errands per month, with premium users are allowed to create unlimited number of tasks.
+
+### 6. Login & Signup features
+- **Matric Number Based Registration**: Students are asked to use their matric number and password as sign up and login credentials.
+- **One account for all**: For both runner and students will be using the same signed up account, but with register as runner option later in the apps.
+
+### 7. Runner Application
+- **Register as runner**: Any students that wish to get extra money can register easily on the app by entering vehicle and license details.
+
+### 8. Dashboard System
+- **Dashboard Interface**: Dashboard contains all the features of the apps with simple interface that is easy to navigate.
+- **Dashboard for Students & Runner**: Students can easily switch to Runner dashboard with the same dashboard layout but different features.
 ---
 # Requirements Analysis
 ### Technical Feasibility and backend assessment
