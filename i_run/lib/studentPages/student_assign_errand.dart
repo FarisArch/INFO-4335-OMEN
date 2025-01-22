@@ -229,6 +229,23 @@ class _studentAssignErandState extends State<studentAssignErand> {
                   ],
                 ),
               ),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                    child: Text('Submit'),
+                    onPressed: () {
+                      // Functionality to submit form will be implemented later
+                    },
+                  ),
+                ),
+              ])
             ],
           ),
         ),
