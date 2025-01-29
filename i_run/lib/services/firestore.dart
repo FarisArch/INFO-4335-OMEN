@@ -1,0 +1,1 @@
+// Faris: Ni guna untuk firestore retrieval

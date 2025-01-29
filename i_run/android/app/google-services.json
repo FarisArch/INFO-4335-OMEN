@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "760719249909",
+    "project_id": "omen-irunner",
+    "storage_bucket": "omen-irunner.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:760719249909:android:fae9d29623605128b790bc",
+        "android_client_info": {
+          "package_name": "com.omen.irun"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2lbn2AeG4IleDx92c1pYgIi2YZ6rDuj8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

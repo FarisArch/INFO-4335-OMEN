@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:i_run/services/database_service_errands.dart';
 
-class studentAssignErand extends StatefulWidget {
-  const studentAssignErand({super.key});
+class studentAssignErrand extends StatefulWidget {
+  const studentAssignErrand({super.key});
 
   @override
-  State<studentAssignErand> createState() => _studentAssignErandState();
+  State<studentAssignErrand> createState() => _studentAssignErrandState();
 }
 
-class _studentAssignErandState extends State<studentAssignErand> {
-  String dropdownValueTaskType = 'Item Delivery'; // Default selected value for Task Type
-  String selectedDate = 'Select Date'; // Default selected value for Date
-  String selectedTime = 'Select Time'; // Default selected value for Time
-  String taskDescription = ''; // To store the user input for Task Description
+class _studentAssignErrandState extends State<studentAssignErrand> {
+  String dropdownValueTaskType = 'Item Delivery';
+  String selectedDate = 'Select Date';
+  String selectedTime = 'Select Time';
+  String taskDescription = '';
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Method to open the Date Picker
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -21,14 +23,13 @@ class _studentAssignErandState extends State<studentAssignErand> {
       firstDate: DateTime(2020),
       lastDate: DateTime(2101),
     );
-    if (pickedDate != null && pickedDate != DateTime.now()) {
+    if (pickedDate != null) {
       setState(() {
-        selectedDate = '${pickedDate.toLocal()}'.split(' ')[0]; // Format the selected date
+        selectedDate = '${pickedDate.toLocal()}'.split(' ')[0];
       });
     }
   }
 
-  // Method to open the Time Picker
   Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
@@ -36,8 +37,41 @@ class _studentAssignErandState extends State<studentAssignErand> {
     );
     if (pickedTime != null) {
       setState(() {
-        selectedTime = pickedTime.format(context); // Format the selected time
+        selectedTime = pickedTime.format(context);
       });
+    }
+  }
+
+  Future<void> _submitErrand() async {
+    if (selectedDate == 'Select Date' || selectedTime == 'Select Time' || taskDescription.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
+    }
+
+    try {
+      await _firestore.collection('errands').add({
+        'taskType': dropdownValueTaskType,
+        'date': selectedDate,
+        'time': selectedTime,
+        'description': taskDescription,
+        'assigned': null,
+        'status': null,
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Errand successfully assigned')),
+      );
+      setState(() {
+        dropdownValueTaskType = 'Item Delivery';
+        selectedDate = 'Select Date';
+        selectedTime = 'Select Time';
+        taskDescription = '';
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error assigning errand: $e')),
+      );
     }
   }
 
@@ -45,10 +79,7 @@ class _studentAssignErandState extends State<studentAssignErand> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          "IIUM ERRAND RUNNER",
-          style: TextStyle(color: Colors.white),
-        ),
+        title: Text("IIUM ERRAND RUNNER", style: TextStyle(color: Colors.white)),
         backgroundColor: Color.fromARGB(255, 8, 164, 92),
       ),
       body: Center(
@@ -58,14 +89,7 @@ class _studentAssignErandState extends State<studentAssignErand> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
-                child: Text(
-                  "Assign Errand",
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
+                child: Text("Assign Errand", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black)),
               ),
               SizedBox(height: 14),
               Container(
@@ -77,175 +101,64 @@ class _studentAssignErandState extends State<studentAssignErand> {
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Task Type',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                          ),
-                          Container(
-                            width: 140,
-                            decoration: BoxDecoration(
-                              color: Color(0xFFD9D9D9),
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            child: DropdownButton<String>(
-                              value: dropdownValueTaskType,
-                              isExpanded: true,
-                              dropdownColor: Colors.white,
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  dropdownValueTaskType = newValue!;
-                                });
-                              },
-                              items: <String>[
-                                'Item Delivery',
-                                'Food Delivery',
-                                'Pickup'
-                              ].map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Center(child: Text(value)),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        ],
+                    DropdownButton<String>(
+                      value: dropdownValueTaskType,
+                      isExpanded: true,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          dropdownValueTaskType = newValue!;
+                        });
+                      },
+                      items: [
+                        'Item Delivery',
+                        'Food Delivery',
+                        'Pickup'
+                      ].map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(value: value, child: Text(value));
+                      }).toList(),
+                    ),
+                    GestureDetector(
+                      onTap: () => _selectDate(context),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Color(0xFFD9D9D9),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: Center(child: Text(selectedDate)),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Date',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                          ),
-                          GestureDetector(
-                            onTap: () => _selectDate(context), // Open Date Picker
-                            child: Container(
-                              width: 140,
-                              padding: EdgeInsets.symmetric(vertical: 12),
-                              decoration: BoxDecoration(
-                                color: Color(0xFFD9D9D9),
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  selectedDate,
-                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                    GestureDetector(
+                      onTap: () => _selectTime(context),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Color(0xFFD9D9D9),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: Center(child: Text(selectedTime)),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Time',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                          ),
-                          GestureDetector(
-                            onTap: () => _selectTime(context), // Open Time Picker
-                            child: Container(
-                              width: 140,
-                              padding: EdgeInsets.symmetric(vertical: 12),
-                              decoration: BoxDecoration(
-                                color: Color(0xFFD9D9D9),
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  selectedTime,
-                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                    TextField(
+                      onChanged: (value) {
+                        setState(() {
+                          taskDescription = value;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Enter task description',
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(horizontal: 10.0),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Task Description',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                          ),
-                          Container(
-                            width: 140,
-                            padding: EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: Color(0xFFD9D9D9),
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            child: TextField(
-                              onChanged: (String newValue) {
-                                setState(() {
-                                  taskDescription = newValue;
-                                });
-                              },
-                              decoration: InputDecoration(
-                                hintText: 'Enter task description',
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.symmetric(horizontal: 10.0),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Upload Image',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              // Functionality to upload image will be implemented later
-                            },
-                            child: Text('Choose File'),
-                          ),
-                        ],
-                      ),
+                    ElevatedButton(
+                      onPressed: _submitErrand,
+                      child: Text('Submit'),
                     ),
                   ],
                 ),
               ),
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                    ),
-                    child: Text('Submit'),
-                    onPressed: () {
-                      // Functionality to submit form will be implemented later
-                    },
-                  ),
-                ),
-              ])
             ],
           ),
         ),

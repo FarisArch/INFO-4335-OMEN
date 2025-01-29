@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:i_run/pages.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: FirebaseOptions(
+      apiKey: firebase_api_key,
+      appId: firebase_app_id,
+      messagingSenderId: "760719249909 ",
+      projectId: "omen-irunner",
+    ),
+  );
 
-  // Faris : Ni simpan later for Firebase intializations
-  // await Firebase.initializeApp(
-  //   options: FirebaseOptions(
-  //     apiKey: firebase_api_key,
-  //     appId: firebase_app_id,
-  //     messagingSenderId: "138817668884",
-  //     projectId: "know-your-business-fyp",
-  //   ),
-  // );
-
-  // FirebaseFirestore.instance.settings = Settings(persistenceEnabled: true);
+  FirebaseFirestore.instance.settings = Settings(persistenceEnabled: true);
 
   runApp(
-    MaterialApp(initialRoute: '/runnerAvailableTasks', routes: {
+    MaterialApp(initialRoute: '/studentAssignErrand', routes: {
       '/': (context) => Splashscreen(),
       '/studentDashboard': (context) => studentDashboard(),
-      '/studentAssignErand': (context) => studentAssignErand(),
+      '/studentAssignErrand': (context) => studentAssignErrand(),
       '/runnerAvailableTasks': (context) => runnerAvailableTasks(),
       '/runnerDashboard': (context) => runnerDashboard(),
     }),

@@ -10,3 +10,6 @@ export 'package:i_run/runnerPages/runner_dashboard.dart';
 
 // Function pages
 export 'package:i_run/splashscreen.dart';
+
+// API keys
+export 'package:i_run/services/api_key.dart';
