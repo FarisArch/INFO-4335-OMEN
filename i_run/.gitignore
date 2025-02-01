@@ -32,7 +32,7 @@ migrate_working_dir/
 /build/
 /lib/services/api_key.dart
 /android/secret.properties
-/android/src/AndroidManifest.xml
+/android/app/src/main/AndroidManifest.xml
 
 # Symbolication related
 app.*.symbols
