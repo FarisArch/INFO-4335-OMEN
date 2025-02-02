@@ -30,6 +30,9 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+/lib/services/api_key.dart
+/android/secret.properties
+/android/app/src/main/AndroidManifest.xml
 
 # Symbolication related
 app.*.symbols

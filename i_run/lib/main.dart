@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:i_run/pages.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -13,6 +14,7 @@ void main() async {
       projectId: "omen-irunner",
     ),
   );
+  await Geolocator.requestPermission();
 
   FirebaseFirestore.instance.settings = Settings(persistenceEnabled: true);
 

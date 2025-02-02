@@ -1,4 +1,4 @@
-package com.example.i_run
+package com.omen.irun
 
 import io.flutter.embedding.android.FlutterActivity
 
