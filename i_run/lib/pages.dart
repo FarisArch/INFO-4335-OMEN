@@ -10,9 +10,13 @@ export 'package:i_run/runnerPages/runner_available_tasks.dart';
 export 'package:i_run/runnerPages/runner_dashboard.dart';
 export 'package:i_run/runnerPages/runner_apply.dart';
 export 'package:i_run/runnerPages/runner_info.dart';
+export 'package:i_run/runnerPages/task_history.dart';
+export 'package:i_run/runnerPages/task_progress.dart';
 
 // Function pages
 export 'package:i_run/splashscreen.dart';
+export 'package:i_run/login.dart';
+export 'package:i_run/signup.dart';
 
 // API keys
 export 'package:i_run/services/api_key.dart';
