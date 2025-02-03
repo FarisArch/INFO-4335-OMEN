@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -15,6 +18,9 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _matricNumberController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -68,9 +74,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
-                  onPressed: () {
-                    // Handle form submission
-                  },
+                  onPressed: _signUpUser, // Call sign-up function
                   child: const Text(
                     "Submit",
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -84,6 +88,52 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
+  // 🔹 Function to handle user sign-up
+  void _signUpUser() async {
+    String fullName = _fullNameController.text.trim();
+    String email = _emailController.text.trim();
+    String phoneNumber = _phoneNumberController.text.trim();
+    String matricNumber = _matricNumberController.text.trim();
+    String password = _passwordController.text.trim();
+    String confirmPassword = _confirmPasswordController.text.trim();
+
+    if (fullName.isEmpty || email.isEmpty || phoneNumber.isEmpty || matricNumber.isEmpty || password.isEmpty) {
+      Fluttertoast.showToast(msg: "Please fill in all fields");
+      return;
+    }
+
+    if (password != confirmPassword) {
+      Fluttertoast.showToast(msg: "Passwords do not match!");
+      return;
+    }
+
+    try {
+      // 🔥 Create user in Firebase Authentication
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // Get the UID of the registered user
+      String uid = userCredential.user!.uid;
+
+      // 🔥 Store additional user info in Firestore
+      await _firestore.collection('users').doc(uid).set({
+        'fullName': fullName,
+        'email': email,
+        'phoneNumber': phoneNumber,
+        'matricNumber': matricNumber,
+        'uid': uid, // Store UID for reference
+      });
+
+      Fluttertoast.showToast(msg: "User signed up successfully!");
+      Navigator.pop(context); // Go back to login page
+    } catch (e) {
+      Fluttertoast.showToast(msg: "Error: $e");
+    }
+  }
+
+  // 🔹 Function to build text fields
   Widget _buildTextField(TextEditingController controller, String labelText, {bool isPassword = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
