@@ -13,6 +13,8 @@ export 'package:i_run/runnerPages/runner_info.dart';
 
 // Function pages
 export 'package:i_run/splashscreen.dart';
+export 'package:i_run/login.dart';
+export 'package:i_run/signup.dart';
 
 // API keys
 export 'package:i_run/services/api_key.dart';

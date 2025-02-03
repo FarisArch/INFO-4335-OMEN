@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
-
 import 'package:flutter/material.dart';
 
 class studentDashboard extends StatefulWidget {
@@ -31,46 +29,93 @@ class _studentDashboardState extends State<studentDashboard> {
           Padding(
             padding: EdgeInsets.fromLTRB(0, 30, 0, 0),
             child: Container(
-                width: 400,
-                height: 400,
-                color: Color.fromARGB(255, 8, 164, 92),
-                // This one for inside the containers
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-                      Container(
-                        height: 150,
-                        width: 150,
-                        color: Colors.white,
-                        child: Text('Assign Errand'),
-                      ),
-                      Container(
-                        height: 150,
-                        width: 150,
-                        color: Colors.white,
-                        child: Text('Errand Progress'),
-                      )
-                    ]),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Container(
-                          height: 150,
-                          width: 150,
-                          color: Colors.white,
-                          child: Text('Apply as runner'),
+              width: 400,
+              height: 400,
+              color: Color.fromARGB(255, 8, 164, 92),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          // Navigate to Assign Errand page
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          fixedSize: Size(150, 150),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
-                        Container(
-                          height: 150,
-                          width: 150,
-                          color: Colors.white,
-                          child: Text('Personal Information'),
-                        )
-                      ],
-                    )
-                  ],
-                )),
+                        child: Text(
+                          'Assign Errand',
+                          style: TextStyle(color: Colors.black),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Navigate to Errand Progress page
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          fixedSize: Size(150, 150),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          'Errand Progress',
+                          style: TextStyle(color: Colors.black),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          // Navigate to Apply as Runner page
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          fixedSize: Size(150, 150),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          'Apply as Runner',
+                          style: TextStyle(color: Colors.black),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Navigate to Personal Information page
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          fixedSize: Size(150, 150),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          'Personal Information',
+                          style: TextStyle(color: Colors.black),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
           Text('Notifications', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
           Container(
@@ -81,7 +126,7 @@ class _studentDashboardState extends State<studentDashboard> {
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
-          )
+          ),
         ],
       ),
     );

@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:i_run/pages.dart';
 import 'package:geolocator/geolocator.dart';
@@ -25,6 +27,24 @@ void main() async {
       '/studentAssignErrand': (context) => studentAssignErrand(),
       '/runnerAvailableTasks': (context) => runnerAvailableTasks(),
       '/runnerDashboard': (context) => runnerDashboard(),
+      '/studentInfo': (context) => StudentInformationPage(
+            fullName: 'Faris Aiman',
+            email: 'test@gmail.com',
+            matricNumber: '2111809',
+            phoneNumber: '0197351705',
+            password: '123',
+          ),
+      '/runnerInfo': (context) => RunnerInformationPage(
+            fullName: 'Faris Aiman',
+            email: 'test@gmail.com',
+            matricNumber: '2111809',
+            phoneNumber: '0197351705',
+            password: '123',
+            vehicleRegistrationPlate: 'ABC1234',
+            vehicleType: 'Motorcycle',
+          ),
+      '/signup': (context) => SignUpPage(),
+      '/login': (context) => LoginPage(),
     }),
   );
 }
