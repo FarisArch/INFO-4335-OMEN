@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -14,7 +14,6 @@ class _TaskProgressState extends State<TaskProgress> {
   String taskStatus = "Errand in progress";
   Map<String, dynamic>? taskDetails;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void initState() {
@@ -24,7 +23,7 @@ class _TaskProgressState extends State<TaskProgress> {
 
   Future<void> fetchTaskDetails() async {
     try {
-      DocumentSnapshot taskSnapshot = await _firestore.collection('tasks').doc(widget.taskId).get();
+      DocumentSnapshot taskSnapshot = await _firestore.collection('errands').doc(widget.taskId).get();
       if (taskSnapshot.exists) {
         setState(() {
           taskDetails = taskSnapshot.data() as Map<String, dynamic>;
@@ -39,7 +38,7 @@ class _TaskProgressState extends State<TaskProgress> {
   Future<void> updateTaskStatus(String status) async {
     try {
       setState(() => taskStatus = status);
-      await _firestore.collection('tasks').doc(widget.taskId).update({'status': status});
+      await _firestore.collection('errands').doc(widget.taskId).update({'status': status});
     } catch (e) {
       print("Error updating task status: $e");
     }
@@ -70,24 +69,15 @@ class _TaskProgressState extends State<TaskProgress> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Task Code: ${taskDetails?["taskCode"]}", style: TextStyle(fontSize: 16)),
                         Text("Task Type: ${taskDetails?["taskType"]}", style: TextStyle(fontSize: 16)),
                         Text("Date: ${taskDetails?["date"]}", style: TextStyle(fontSize: 16)),
                         Text("Time: ${taskDetails?["time"]}", style: TextStyle(fontSize: 16)),
-                        Text("Rate: RM ${taskDetails?["rate"]}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue)),
+                        Text("Rate: RM ${taskDetails?["price"]}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue)),
                         SizedBox(height: 8),
-                        Text("Task Description: ${taskDetails?["description"]}", style: TextStyle(fontSize: 16)),
+                        Text("Task Description: ${taskDetails?["deliveryLocation"]?["description"]}", style: TextStyle(fontSize: 16)),
                         SizedBox(height: 12),
-                        taskDetails?["images"] != null && (taskDetails?["images"] as List).isNotEmpty
-                            ? Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: (taskDetails?["images"] as List).map<Widget>((imageUrl) {
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                    child: Image.network(imageUrl, width: 60, height: 60, fit: BoxFit.cover),
-                                  );
-                                }).toList(),
-                              )
+                        taskDetails?["image"] != null
+                            ? Image.network(taskDetails?["image"], width: 100, height: 100, fit: BoxFit.cover)
                             : SizedBox.shrink(),
                       ],
                     ),
