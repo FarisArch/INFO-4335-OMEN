@@ -29,57 +29,104 @@ class _runnerDashboardState extends State<runnerDashboard> {
           Padding(
             padding: EdgeInsets.fromLTRB(0, 30, 0, 0),
             child: Container(
-                width: 400,
-                height: 400,
-                color: Color.fromARGB(255, 8, 164, 92),
-                // This one for inside the containers
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-                      Container(
-                        height: 150,
-                        width: 150,
-                        color: Colors.white,
-                        child: Text('Available Tasks'),
-                      ),
-                      Container(
-                        height: 150,
-                        width: 150,
-                        color: Colors.white,
-                        child: Text('Task Progress'),
-                      )
-                    ]),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Container(
-                          height: 150,
-                          width: 150,
-                          color: Colors.white,
-                          child: Text('Task history'),
+              width: 400,
+              height: 400,
+              color: Color.fromARGB(255, 8, 164, 92),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          // Navigate to Available Tasks page
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          fixedSize: Size(150, 150),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
-                        Container(
-                          height: 150,
-                          width: 150,
-                          color: Colors.white,
-                          child: Text('Personal Information'),
-                        )
-                      ],
-                    )
-                  ],
-                )),
+                        child: Text(
+                          'Available Tasks',
+                          style: TextStyle(color: Colors.black),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Navigate to Task Progress page
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          fixedSize: Size(150, 150),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          'Task Progress',
+                          style: TextStyle(color: Colors.black),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          // Navigate to Task History page
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          fixedSize: Size(150, 150),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          'Task History',
+                          style: TextStyle(color: Colors.black),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Navigate to Personal Information page
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          fixedSize: Size(150, 150),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          'Personal Information',
+                          style: TextStyle(color: Colors.black),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
           Text('Notifications', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
           Container(
             width: 300,
             color: Color.fromARGB(255, 8, 196, 236),
             child: Text(
-              'Yay! new task found! Check "Available Tasks" to accept.',
+              'Yay! New task found! Check "Available Tasks" to accept.',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
-          )
+          ),
         ],
       ),
     );
