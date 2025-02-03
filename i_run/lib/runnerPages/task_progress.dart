@@ -1,123 +1,130 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
-
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class TaskProgress extends StatefulWidget {
-  const TaskProgress({super.key});
+  final String taskId;
+  const TaskProgress({super.key, required this.taskId});
 
   @override
   State<TaskProgress> createState() => _TaskProgressState();
 }
 
 class _TaskProgressState extends State<TaskProgress> {
-  String taskStatus = "Errand in progress"; // Default selected status
+  String taskStatus = "Errand in progress";
+  Map<String, dynamic>? taskDetails;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchTaskDetails();
+  }
+
+  Future<void> fetchTaskDetails() async {
+    try {
+      DocumentSnapshot taskSnapshot = await _firestore.collection('tasks').doc(widget.taskId).get();
+      if (taskSnapshot.exists) {
+        setState(() {
+          taskDetails = taskSnapshot.data() as Map<String, dynamic>;
+          taskStatus = taskDetails?["status"] ?? "Errand in progress";
+        });
+      }
+    } catch (e) {
+      print("Error fetching task details: $e");
+    }
+  }
+
+  Future<void> updateTaskStatus(String status) async {
+    try {
+      setState(() => taskStatus = status);
+      await _firestore.collection('tasks').doc(widget.taskId).update({'status': status});
+    } catch (e) {
+      print("Error updating task status: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          "IIUM ERRAND RUNNER",
-          style: TextStyle(color: Colors.white),
-        ),
+        title: Text("IIUM ERRAND RUNNER", style: TextStyle(color: Colors.white)),
         backgroundColor: Color.fromARGB(255, 8, 164, 92),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              'Task Progress',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 16),
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(12),
-              ),
+      body: taskDetails == null
+          ? Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text("Task Code: E101", style: TextStyle(fontSize: 16)),
-                  Text("Task Type: Item Delivery", style: TextStyle(fontSize: 16)),
-                  Text("Date: 17/01/2024", style: TextStyle(fontSize: 16)),
-                  Text("Time: 2:30pm", style: TextStyle(fontSize: 16)),
-                  SizedBox(height: 8),
-                  Text(
-                    "Task Description: Deliver item to Mr. Reshat at KICT. Contact 0119299229",
-                    style: TextStyle(fontSize: 16),
+                  Text('Task Progress', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 16),
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Task Code: ${taskDetails?["taskCode"]}", style: TextStyle(fontSize: 16)),
+                        Text("Task Type: ${taskDetails?["taskType"]}", style: TextStyle(fontSize: 16)),
+                        Text("Date: ${taskDetails?["date"]}", style: TextStyle(fontSize: 16)),
+                        Text("Time: ${taskDetails?["time"]}", style: TextStyle(fontSize: 16)),
+                        Text("Rate: RM ${taskDetails?["rate"]}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue)),
+                        SizedBox(height: 8),
+                        Text("Task Description: ${taskDetails?["description"]}", style: TextStyle(fontSize: 16)),
+                        SizedBox(height: 12),
+                        taskDetails?["images"] != null && (taskDetails?["images"] as List).isNotEmpty
+                            ? Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: (taskDetails?["images"] as List).map<Widget>((imageUrl) {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                    child: Image.network(imageUrl, width: 60, height: 60, fit: BoxFit.cover),
+                                  );
+                                }).toList(),
+                              )
+                            : SizedBox.shrink(),
+                      ],
+                    ),
                   ),
-                  SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(3, (index) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Icon(Icons.image, size: 40),
-                      ),
-                    )),
-                  )
+                  SizedBox(height: 16),
+                  Text('Select Status:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 8),
+                  Column(
+                    children: [
+                      buildStatusButton("On my way!"),
+                      SizedBox(height: 8),
+                      buildStatusButton("Errand in progress"),
+                      SizedBox(height: 8),
+                      buildStatusButton("Task Completed"),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/runner_dashboard');
+                    },
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    child: Text("Back", style: TextStyle(color: Colors.white)),
+                  ),
                 ],
               ),
             ),
-            SizedBox(height: 16),
-            Text('Select Status:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 8),
-            Column(
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() => taskStatus = "On my way!");
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: taskStatus == "On my way!" ? Colors.green : Colors.grey,
-                  ),
-                  child: Text("On my way!", style: TextStyle(color: Colors.white)),
-                ),
-                SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() => taskStatus = "Errand in progress");
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: taskStatus == "Errand in progress" ? Colors.green : Colors.grey,
-                  ),
-                  child: Text("Errand in progress", style: TextStyle(color: Colors.white)),
-                ),
-                SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() => taskStatus = "Task Completed");
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: taskStatus == "Task Completed" ? Colors.green : Colors.grey,
-                  ),
-                  child: Text("Task Completed", style: TextStyle(color: Colors.white)),
-                ),
-              ],
-            ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, '/runner_dashboard');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey,
-              ),
-              child: Text("Back", style: TextStyle(color: Colors.white)),
-            ),
-          ],
-        ),
+    );
+  }
+
+  Widget buildStatusButton(String status) {
+    return ElevatedButton(
+      onPressed: () => updateTaskStatus(status),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: taskStatus == status ? Colors.green : Colors.grey[600],
       ),
+      child: Text(status, style: TextStyle(color: Colors.white)),
     );
   }
 }
