@@ -11,7 +11,6 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  // Controllers for text fields
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
@@ -21,9 +20,9 @@ class _SignUpPageState extends State<SignUpPage> {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
   final _formKey = GlobalKey<FormState>();
-  bool _isLoading = false; // State for loading indicator
+
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +42,6 @@ class _SignUpPageState extends State<SignUpPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // App Logo Section
                 const SizedBox(height: 80, width: 80, child: Placeholder()),
                 const SizedBox(height: 10),
                 const Text(
@@ -52,9 +50,10 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 const SizedBox(height: 20),
 
-                // Form Fields with Validation
                 _buildTextField(_fullNameController, "Full Name", validator: (value) {
-                  return value!.isEmpty ? "Full Name is required" : null;
+                  if (value!.isEmpty) return "Full Name is required";
+                  if (!RegExp(r'^[A-Za-z\s]+$').hasMatch(value)) return "No numbers or special characters";
+                  return null;
                 }),
                 _buildTextField(_emailController, "Email", validator: (value) {
                   return value!.isEmpty || !value.contains("@") ? "Enter a valid email" : null;
@@ -74,7 +73,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
                 const SizedBox(height: 20),
 
-                // Submit Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -83,13 +81,10 @@ class _SignUpPageState extends State<SignUpPage> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
                     ),
-                    onPressed: _isLoading ? null : _signUpUser, // Disable button while loading
+                    onPressed: _isLoading ? null : _signUpUser,
                     child: _isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text(
-                            "Submit",
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
+                        : const Text("Submit", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],
@@ -100,13 +95,10 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  // 🔹 Function to handle user sign-up
   Future<void> _signUpUser() async {
-    if (!_formKey.currentState!.validate()) return; // Validate form
+    if (!_formKey.currentState!.validate()) return;
 
-    setState(() {
-      _isLoading = true; // Show loading indicator
-    });
+    setState(() => _isLoading = true);
 
     String fullName = _fullNameController.text.trim();
     String email = _emailController.text.trim();
@@ -115,27 +107,22 @@ class _SignUpPageState extends State<SignUpPage> {
     String password = _passwordController.text.trim();
 
     try {
-      // 🔥 Create user in Firebase Authentication
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      // Get UID
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(email: email, password: password);
       String uid = userCredential.user!.uid;
 
-      // 🔥 Store additional user info in Firestore
       await _firestore.collection('users').doc(uid).set({
         'fullName': fullName,
         'email': email,
         'phoneNumber': phoneNumber,
         'matricNumber': matricNumber,
-        'uid': uid, // Store UID
+        'uid': uid,
         'createdAt': FieldValue.serverTimestamp(),
       });
 
-      Fluttertoast.showToast(msg: "User signed up successfully!");
-      Navigator.pop(context); // Navigate back
+      Fluttertoast.showToast(msg: "Registration successful!");
+      
+      // 🔹 Redirect to student dashboard after successful signup
+      Navigator.pushReplacementNamed(context, '/studentDashboard');
 
     } on FirebaseAuthException catch (e) {
       String errorMsg;
@@ -151,12 +138,9 @@ class _SignUpPageState extends State<SignUpPage> {
       Fluttertoast.showToast(msg: "Unexpected Error: $e");
     }
 
-    setState(() {
-      _isLoading = false; // Hide loading indicator
-    });
+    setState(() => _isLoading = false);
   }
 
-  // 🔹 Function to build text fields with validation
   Widget _buildTextField(TextEditingController controller, String labelText,
       {bool isPassword = false, String? Function(String?)? validator}) {
     return Padding(
