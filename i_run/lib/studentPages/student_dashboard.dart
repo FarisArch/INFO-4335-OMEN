@@ -72,14 +72,20 @@ class _studentDashboardState extends State<studentDashboard> {
                       _dashboardButton('Assign Errand', () {
                         Navigator.pushNamed(context, '/studentAssignErrand');
                       }),
-                      _dashboardButton('Errand Progress', () {}),
+                      _dashboardButton('Errand Progress', () {
+                        Navigator.pushNamed(context, '/studentErrandProgress');
+                      }),
                     ],
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _dashboardButton('Apply as Runner', () {}),
-                      _dashboardButton('Personal Information', () {}),
+                      _dashboardButton('Apply as Runner', () {
+                        Navigator.pushNamed(context, ''); //
+                      }),
+                      _dashboardButton('Personal Information', () {
+                        Navigator.pushNamed(context, '');
+                      }),
                     ],
                   ),
                 ],
