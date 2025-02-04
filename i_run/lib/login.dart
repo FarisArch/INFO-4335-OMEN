@@ -38,8 +38,18 @@ class _LoginPageState extends State<LoginPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // App Logo (Placeholder)
-                const SizedBox(height: 80, width: 80, child: Placeholder()),
+                // App Logo (Updated)
+                SizedBox(
+                  height: 100,
+                  width: 100,
+                  child: Image.asset(
+                    'assets/images/logo app.png',
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => 
+                      Icon(Icons.error, size: 40, color: Colors.red), // Error handler
+                  ),
+                ),
+
                 const SizedBox(height: 20),
                 const Text(
                   "IIUM ERRAND RUNNER (IER)",
