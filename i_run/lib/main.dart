@@ -20,14 +20,14 @@ void main() async {
 
   FirebaseFirestore.instance.settings = Settings(persistenceEnabled: true);
 
-  runApp(
-    MaterialApp(initialRoute: '/studentAssignErrand', routes: {
+ runApp(
+    MaterialApp(initialRoute:  '/studentInfo', routes: {
       '/': (context) => Splashscreen(),
       '/studentDashboard': (context) => studentDashboard(),
       '/studentAssignErrand': (context) => studentAssignErrand(),
       '/runnerAvailableTasks': (context) => runnerAvailableTasks(),
       '/runnerDashboard': (context) => runnerDashboard(),
-      '/studentInfo': (context) => StudentInformationPage(),
+      '/studentInfo': (context) => StudentInformationPage(uid: 'hR3v4p0ncbfo34ryPz9PlrXKKdE3'),
       '/runnerInfo': (context) => RunnerInformationPage(),
       '/signup': (context) => SignUpPage(),
       '/login': (context) => LoginPage(),
