@@ -12,122 +12,107 @@ class _runnerDashboardState extends State<runnerDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           "IIUM ERRAND RUNNER",
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Color.fromARGB(255, 8, 164, 92),
+        backgroundColor: const Color.fromARGB(255, 8, 164, 92),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: const BoxDecoration(
+                color: Color.fromARGB(255, 8, 164, 92),
+              ),
+              child: const Text(
+                'Menu',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.dashboard),
+              title: const Text('Switch to Student Dashboard'),
+              onTap: () {
+                Navigator.pushNamed(context, '/studentDashboard');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
+              onTap: () {
+                // Add logout functionality here
+                Navigator.pushReplacementNamed(context, '/login');
+              },
+            ),
+          ],
+        ),
       ),
       body: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+            children: const [
               Text('Dashboard', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
             ],
           ),
           Padding(
-            padding: EdgeInsets.fromLTRB(0, 30, 0, 0),
+            padding: const EdgeInsets.fromLTRB(0, 30, 0, 0),
             child: Container(
               width: 400,
               height: 400,
-              color: Color.fromARGB(255, 8, 164, 92),
+              color: const Color.fromARGB(255, 8, 164, 92),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          // Navigate to Available Tasks page
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          fixedSize: Size(150, 150),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text(
-                          'Available Tasks',
-                          style: TextStyle(color: Colors.black),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          // Navigate to Task Progress page
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          fixedSize: Size(150, 150),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text(
-                          'Task Progress',
-                          style: TextStyle(color: Colors.black),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
+                      _dashboardButton('Available Tasks', () {}),
+                      _dashboardButton('Task Progress', () {}),
                     ],
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          // Navigate to Task History page
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          fixedSize: Size(150, 150),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text(
-                          'Task History',
-                          style: TextStyle(color: Colors.black),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          // Navigate to Personal Information page
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          fixedSize: Size(150, 150),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text(
-                          'Personal Information',
-                          style: TextStyle(color: Colors.black),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
+                      _dashboardButton('Task History', () {}),
+                      _dashboardButton('Personal Information', () {}),
                     ],
                   ),
                 ],
               ),
             ),
           ),
-          Text('Notifications', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+          const Text('Notifications', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
           Container(
             width: 300,
-            color: Color.fromARGB(255, 8, 196, 236),
-            child: Text(
+            color: const Color.fromARGB(255, 8, 196, 236),
+            child: const Text(
               'Yay! New task found! Check "Available Tasks" to accept.',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _dashboardButton(String text, VoidCallback onPressed) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.white,
+        fixedSize: const Size(150, 150),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(color: Colors.black),
+        textAlign: TextAlign.center,
       ),
     );
   }

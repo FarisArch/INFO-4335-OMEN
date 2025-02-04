@@ -4,6 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:i_run/services/mapscreen.dart'; // Import the MapScreen
+import 'dart:math';
 
 class studentAssignErrand extends StatefulWidget {
   const studentAssignErrand({super.key});
@@ -94,8 +95,12 @@ class _studentAssignErrandState extends State<studentAssignErrand> {
       return;
     }
 
+    // Generate a unique Task ID (e.g., T123456)
+    String taskId = 'T${Random().nextInt(900000) + 100000}';
+
     try {
       await _firestore.collection('errands').add({
+        'taskId': taskId,
         'taskType': dropdownValueTaskType,
         'date': selectedDate,
         'time': selectedTime,
@@ -111,11 +116,13 @@ class _studentAssignErrandState extends State<studentAssignErrand> {
         },
         'image': selectedImage != null ? selectedImage!.path : null,
         'assigned': null,
-        'status': null,
+        'status': 'Available',
       });
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Errand successfully assigned')),
       );
+
       setState(() {
         dropdownValueTaskType = 'Item Delivery';
         selectedDate = 'Select Date';

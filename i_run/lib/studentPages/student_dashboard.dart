@@ -12,122 +12,107 @@ class _studentDashboardState extends State<studentDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           "IIUM ERRAND RUNNER",
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Color.fromARGB(255, 8, 164, 92),
+        backgroundColor: const Color.fromARGB(255, 8, 164, 92),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Color.fromARGB(255, 8, 164, 92),
+              ),
+              child: Text(
+                'Menu',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.directions_run),
+              title: Text('Switch to Runner Dashboard'),
+              onTap: () {
+                Navigator.pushNamed(context, '/runnerDashboard');
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
+              onTap: () {
+                // Add logout functionality here
+                Navigator.pushReplacementNamed(context, '/login');
+              },
+            ),
+          ],
+        ),
       ),
       body: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+            children: const [
               Text('Dashboard', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
             ],
           ),
           Padding(
-            padding: EdgeInsets.fromLTRB(0, 30, 0, 0),
+            padding: const EdgeInsets.fromLTRB(0, 30, 0, 0),
             child: Container(
               width: 400,
               height: 400,
-              color: Color.fromARGB(255, 8, 164, 92),
+              color: const Color.fromARGB(255, 8, 164, 92),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          // Navigate to Assign Errand page
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          fixedSize: Size(150, 150),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text(
-                          'Assign Errand',
-                          style: TextStyle(color: Colors.black),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          // Navigate to Errand Progress page
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          fixedSize: Size(150, 150),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text(
-                          'Errand Progress',
-                          style: TextStyle(color: Colors.black),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
+                      _dashboardButton('Assign Errand', () {}),
+                      _dashboardButton('Errand Progress', () {}),
                     ],
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          // Navigate to Apply as Runner page
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          fixedSize: Size(150, 150),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text(
-                          'Apply as Runner',
-                          style: TextStyle(color: Colors.black),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          // Navigate to Personal Information page
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          fixedSize: Size(150, 150),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text(
-                          'Personal Information',
-                          style: TextStyle(color: Colors.black),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
+                      _dashboardButton('Apply as Runner', () {}),
+                      _dashboardButton('Personal Information', () {}),
                     ],
                   ),
                 ],
               ),
             ),
           ),
-          Text('Notifications', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+          const Text('Notifications', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
           Container(
             width: 300,
-            color: Color.fromARGB(255, 8, 196, 236),
-            child: Text(
+            color: const Color.fromARGB(255, 8, 196, 236),
+            child: const Text(
               'Yay! We have found you a runner. Check "Errand Progress" to check status',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _dashboardButton(String text, VoidCallback onPressed) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.white,
+        fixedSize: const Size(150, 150),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(color: Colors.black),
+        textAlign: TextAlign.center,
       ),
     );
   }
