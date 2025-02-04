@@ -27,6 +27,7 @@ class _LoginPageState extends State<LoginPage> {
           style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
+        automaticallyImplyLeading: false, // Removes the back button
       ),
       body: Center(
         child: Padding(
