@@ -18,74 +18,81 @@ class _LoginPageState extends State<LoginPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  final _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
+  bool _obscurePassword = true; // For password visibility toggle
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // App Logo Section
-              const SizedBox(
-                height: 100,
-                width: 100,
-                child: Placeholder(), // Replace with Image.asset for your logo
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                "IIUM ERRAND RUNNER (IER)",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // App Logo Section
+                const SizedBox(height: 100, width: 100, child: Placeholder()), // Replace with Image.asset
+                const SizedBox(height: 10),
+                const Text(
+                  "IIUM ERRAND RUNNER (IER)",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-              ),
-              const SizedBox(height: 30),
-              // Matric Number Field
-              _buildTextField(_matricNumberController, "Matric No."),
-              // Password Field
-              _buildTextField(_passwordController, "Password", isPassword: true),
-              const SizedBox(height: 20),
-              // Login Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 8, 164, 92),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                const SizedBox(height: 30),
+
+                // Matric Number Field
+                _buildTextField(_matricNumberController, "Matric No.", validator: (value) {
+                  return value!.isEmpty ? "Matric No. is required" : null;
+                }),
+
+                // Password Field with visibility toggle
+                _buildTextField(_passwordController, "Password",
+                    isPassword: true,
+                    validator: (value) {
+                      return value!.isEmpty ? "Password is required" : null;
+                    }),
+
+                const SizedBox(height: 20),
+
+                // Login Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 8, 164, 92),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
                     ),
-                  ),
-                  onPressed: _loginUser, // Call login function
-                  child: const Text(
-                    "Login",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    onPressed: _isLoading ? null : _loginUser,
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text("Login", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              // Sign Up Link
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("Not a user yet? "),
-                  GestureDetector(
-                    onTap: () {
-                      // Navigate to Sign-Up Page
-                    },
-                    child: const Text(
-                      "Sign up now !",
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
+
+                const SizedBox(height: 20),
+
+                // Sign Up Link
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Not a user yet? "),
+                    GestureDetector(
+                      onTap: () {
+                        // Navigate to Sign-Up Page
+                        // Navigator.push(context, MaterialPageRoute(builder: (context) => SignUpPage()));
+                      },
+                      child: const Text(
+                        "Sign up now!",
+                        style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -93,14 +100,15 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   // 🔹 Function to handle user login
-  void _loginUser() async {
+  Future<void> _loginUser() async {
+    if (!_formKey.currentState!.validate()) return; // Validate form
+
+    setState(() {
+      _isLoading = true; // Show loading
+    });
+
     String matricNumber = _matricNumberController.text.trim();
     String password = _passwordController.text.trim();
-
-    if (matricNumber.isEmpty || password.isEmpty) {
-      Fluttertoast.showToast(msg: "Please enter Matric Number and Password");
-      return;
-    }
 
     try {
       // 🔥 Query Firestore to get email linked to Matric Number
@@ -112,6 +120,7 @@ class _LoginPageState extends State<LoginPage> {
 
       if (querySnapshot.docs.isEmpty) {
         Fluttertoast.showToast(msg: "Matric Number not found!");
+        setState(() => _isLoading = false);
         return;
       }
 
@@ -119,28 +128,41 @@ class _LoginPageState extends State<LoginPage> {
       String email = querySnapshot.docs.first.get('email');
 
       // 🔥 Authenticate user with email & password
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
 
       Fluttertoast.showToast(msg: "Login successful!");
 
       // Navigate to home screen (replace with actual navigation)
       // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage()));
-      
+
+    } on FirebaseAuthException catch (e) {
+      String errorMsg;
+      if (e.code == 'user-not-found') {
+        errorMsg = "User not found!";
+      } else if (e.code == 'wrong-password') {
+        errorMsg = "Incorrect password!";
+      } else {
+        errorMsg = "Error: ${e.message}";
+      }
+      Fluttertoast.showToast(msg: errorMsg);
     } catch (e) {
-      Fluttertoast.showToast(msg: "Login failed: $e");
+      Fluttertoast.showToast(msg: "Unexpected Error: $e");
     }
+
+    setState(() {
+      _isLoading = false; // Hide loading
+    });
   }
 
-  // 🔹 Function to build text fields
-  Widget _buildTextField(TextEditingController controller, String labelText, {bool isPassword = false}) {
+  // 🔹 Function to build text fields with validation and password visibility toggle
+  Widget _buildTextField(TextEditingController controller, String labelText,
+      {bool isPassword = false, String? Function(String?)? validator}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: TextField(
+      child: TextFormField(
         controller: controller,
-        obscureText: isPassword,
+        obscureText: isPassword ? _obscurePassword : false,
+        validator: validator,
         decoration: InputDecoration(
           labelText: labelText,
           filled: true,
@@ -150,6 +172,16 @@ class _LoginPageState extends State<LoginPage> {
             borderSide: BorderSide.none,
           ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          suffixIcon: isPassword
+              ? IconButton(
+                  icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                )
+              : null,
         ),
       ),
     );
