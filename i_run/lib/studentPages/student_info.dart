@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'dart:io';
 
 class StudentInformationPage extends StatefulWidget {
   const StudentInformationPage({super.key});
@@ -13,15 +9,8 @@ class StudentInformationPage extends StatefulWidget {
 }
 
 class _StudentInformationPageState extends State<StudentInformationPage> {
-  // Variables and controllers
-  File? _profileImage;
-  String? _profileImageUrl;
-  final ImagePicker _picker = ImagePicker();
-
-    // Firebase services instances
+  // Firebase Firestore instance
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   // Controllers for text fields
   late TextEditingController fullNameController;
@@ -44,117 +33,36 @@ class _StudentInformationPageState extends State<StudentInformationPage> {
     phoneController = TextEditingController();
     matricController = TextEditingController();
 
-    // Load user data from Firebase
+    // Load user data from Firestore
     _loadUserData();
   }
 
-     // Load user data from Firestore
+  // Load user data from Firestore
   Future<void> _loadUserData() async {
-    final User? user = _auth.currentUser;
-    if (user != null) {
-      DocumentSnapshot doc = 
-          await _firestore.collection('users').doc(user.uid).get();
-      if (doc.exists) {
-        setState(() {
-          fullNameController.text = doc['fullName'] ?? '';
-          emailController.text = doc['email'] ?? '';
-          phoneController.text = doc['phoneNumber'] ?? '';
-          matricController.text = doc['matricNumber'] ?? '';
-          _profileImageUrl = doc['profileImageUrl'];
-          _isLoading = false;
-        });
-      }
+    DocumentSnapshot doc = await _firestore.collection('users').doc('user_id').get();
+    if (doc.exists) {
+      setState(() {
+        fullNameController.text = doc['fullName'] ?? '';
+        emailController.text = doc['email'] ?? '';
+        phoneController.text = doc['phoneNumber'] ?? '';
+        matricController.text = doc['matricNumber'] ?? '';
+        _isLoading = false;
+      });
     }
   }
 
-
-      // Update user data in Firestore 
+  // Update user data in Firestore
   Future<void> _updateUserData() async {
-    final User? user = _auth.currentUser;
-    if (user != null) {
-      await _firestore.collection('users').doc(user.uid).update({
-        'fullName': fullNameController.text,
-        'email': emailController.text,
-        'phoneNumber': phoneController.text,
-        'matricNumber': matricController.text,
-        'profileImageUrl': _profileImageUrl,
-      });
-      setState(() {
-        showSaveButton = false;
-        isEdited = false;
-      });
-    }
-  }
-
-
-
-  Future<void> _pickImage(ImageSource source) async {
-    try {
-      final pickedFile = await _picker.pickImage(source: source);
-      if (pickedFile == null) return;
-
-      final User? user = _auth.currentUser;
-      if (user == null) return;
-
-      setState(() {
-        _profileImage = File(pickedFile.path);
-        _isLoading = true;
-      });
-
-      // Upload to Firebase Storage
-      final storageRef = _storage.ref()
-          .child('profile_images')
-          .child('${user.uid}.jpg');
-
-      await storageRef.putFile(_profileImage!);
-      final downloadUrl = await storageRef.getDownloadURL();
-
-      // Update Firestore
-      await _firestore.collection('users').doc(user.uid).update({
-        'profileImageUrl': downloadUrl,
-      });
-
-      setState(() {
-        _profileImageUrl = downloadUrl;
-        _isLoading = false;
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error uploading image: $e')),
-      );
-      setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _removeImage() async {
-    try {
-      final User? user = _auth.currentUser;
-      if (user == null) return;
-
-      setState(() => _isLoading = true);
-
-      // Remove from Storage
-      final storageRef = _storage.ref()
-          .child('profile_images')
-          .child('${user.uid}.jpg');
-      await storageRef.delete();
-
-      // Update Firestore
-      await _firestore.collection('users').doc(user.uid).update({
-        'profileImageUrl': FieldValue.delete(),
-      });
-
-      setState(() {
-        _profileImage = null;
-        _profileImageUrl = null;
-        _isLoading = false;
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error removing image: $e')),
-      );
-      setState(() => _isLoading = false);
-    }
+    await _firestore.collection('users').doc('user_id').update({
+      'fullName': fullNameController.text,
+      'email': emailController.text,
+      'phoneNumber': phoneController.text,
+      'matricNumber': matricController.text,
+    });
+    setState(() {
+      showSaveButton = false;
+      isEdited = false;
+    });
   }
 
   @override
@@ -184,24 +92,6 @@ class _StudentInformationPageState extends State<StudentInformationPage> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  Center(
-                    child: GestureDetector(
-                      onTap: _showImagePickerOptions,
-                      child: CircleAvatar(
-                        radius: 50,
-                        backgroundColor: Colors.grey[300],
-                        backgroundImage: _profileImageUrl != null
-                            ? NetworkImage(_profileImageUrl!)
-                            : _profileImage != null
-                                ? FileImage(_profileImage!)
-                                : null,
-                        child: _profileImageUrl == null && _profileImage == null
-                            ? const Icon(Icons.person, size: 50, color: Colors.white)
-                            : null,
                       ),
                     ),
                   ),
@@ -256,41 +146,6 @@ class _StudentInformationPageState extends State<StudentInformationPage> {
                 ],
               ),
             ),
-    );
-  }
-
-  void _showImagePickerOptions() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Choose from Gallery'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.gallery);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Take a Photo'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.camera);
-              },
-            ),
-            if (_profileImageUrl != null || _profileImage != null)
-              ListTile(
-                leading: const Icon(Icons.delete, color: Colors.red),
-                title: const Text('Remove Photo', style: TextStyle(color: Colors.red)),
-                onTap: _removeImage,
-              ),
-          ],
-        ),
-      ),
     );
   }
 
