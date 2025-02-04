@@ -85,9 +85,8 @@ class _RunnerApplicationPageState extends State<RunnerApplicationPage> {
     try {
       // Save application data to Firestore under 'runners' collection
       await _firestore.collection('runners').doc(_vehicleRegController.text).set({
-        'vehicleType': dropdownVehicleType, // Store selected vehicle type
-        'vehicleRegistrationPlate': _vehicleRegController.text, // Store the vehicle registration
-        'status': 'pending', // Set application status to 'pending'
+        'VehicleType': dropdownVehicleType, // Store selected vehicle type
+        'VehicleRegistration': _vehicleRegController.text, // Store the vehicle registration
       });
 
       // Show success message after submission
