@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'signup.dart';
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -74,19 +76,24 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 20),
 
-                // Sign Up Link
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("Not a user yet? "),
-                    GestureDetector(
-                      onTap: () {
-                        // Navigate to Sign-Up Page
-                        // Navigator.push(context, MaterialPageRoute(builder: (context) => SignUpPage()));
-                      },
-                      child: const Text(
-                        "Sign up now!",
-                        style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+               // Sign Up Link
+              // Sign Up Link
+// Sign Up Link
+// Sign Up Link
+Row(
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: [
+    const Text("Not a user yet? "),
+    GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const SignUpPage()),
+        );
+      },
+      child: const Text(
+        "Sign up now!",
+        style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
