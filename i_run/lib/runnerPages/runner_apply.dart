@@ -4,6 +4,11 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 
+class RunnerApplicationPage extends StatefulWidget {
+  @override
+  _RunnerApplicationPageState createState() => _RunnerApplicationPageState();
+}
+
 class _RunnerApplicationPageState extends State<RunnerApplicationPage> {
   // Default selected vehicle type is 'Car'
   String dropdownVehicleType = 'Car';
@@ -43,10 +48,10 @@ class _RunnerApplicationPageState extends State<RunnerApplicationPage> {
             vehicleFrontImage = selectedFile; // Front image
             break;
           case 'back':
-            vehicleBackImage = selectedFile;  // Back image
+            vehicleBackImage = selectedFile; // Back image
             break;
           case 'side':
-            vehicleSideImage = selectedFile;  // Side image
+            vehicleSideImage = selectedFile; // Side image
             break;
         }
       });
@@ -58,7 +63,9 @@ class _RunnerApplicationPageState extends State<RunnerApplicationPage> {
     // Allow only PDF files to be selected
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['pdf'],
+      allowedExtensions: [
+        'pdf'
+      ],
     );
 
     // Check if the user picked a file and update the license file
@@ -101,10 +108,10 @@ class _RunnerApplicationPageState extends State<RunnerApplicationPage> {
       setState(() {
         _vehicleRegController.clear(); // Clear vehicle registration input
         vehicleFrontImage = null; // Clear vehicle front image
-        vehicleBackImage = null;  // Clear vehicle back image
-        vehicleSideImage = null;  // Clear vehicle side image
-        licenseFile = null;       // Clear license file
-        _isLoading = false;       // Reset loading state
+        vehicleBackImage = null; // Clear vehicle back image
+        vehicleSideImage = null; // Clear vehicle side image
+        licenseFile = null; // Clear license file
+        _isLoading = false; // Reset loading state
       });
     } catch (e) {
       // Show error message if something goes wrong during submission
@@ -126,7 +133,8 @@ class _RunnerApplicationPageState extends State<RunnerApplicationPage> {
         title: const Text("IIUM ERRAND RUNNER"), // App bar title
         backgroundColor: const Color.fromARGB(255, 8, 164, 92), // Green background color for the app bar
       ),
-      body: SingleChildScrollView( // Scrollable body to handle overflow
+      body: SingleChildScrollView(
+        // Scrollable body to handle overflow
         child: Padding(
           padding: const EdgeInsets.all(12.0), // Padding for the content
           child: Column(
@@ -165,7 +173,10 @@ class _RunnerApplicationPageState extends State<RunnerApplicationPage> {
                       DropdownButtonFormField<String>(
                         value: dropdownVehicleType, // Default value for dropdown
                         decoration: const InputDecoration(filled: true, fillColor: Colors.white),
-                        items: ['Car', 'Motorcycle'].map((String value) {
+                        items: [
+                          'Car',
+                          'Motorcycle'
+                        ].map((String value) {
                           return DropdownMenuItem<String>(
                             value: value,
                             child: Text(value), // Display the value in the dropdown

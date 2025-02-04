@@ -4,6 +4,7 @@
 export 'package:i_run/studentPages/student_dashboard.dart';
 export 'package:i_run/studentPages/student_assign_errand.dart';
 export 'package:i_run/studentPages/student_info.dart';
+export 'package:i_run/studentPages/student_errand_progress.dart';
 
 // Runner pages
 export 'package:i_run/runnerPages/runner_available_tasks.dart';
