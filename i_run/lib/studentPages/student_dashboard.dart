@@ -69,7 +69,9 @@ class _studentDashboardState extends State<studentDashboard> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _dashboardButton('Assign Errand', () {}),
+                      _dashboardButton('Assign Errand', () {
+                        Navigator.pushNamed(context, '/studentAssignErrand');
+                      }),
                       _dashboardButton('Errand Progress', () {}),
                     ],
                   ),
