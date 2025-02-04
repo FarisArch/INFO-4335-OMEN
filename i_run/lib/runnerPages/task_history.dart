@@ -4,6 +4,97 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class TaskHistory extends StatelessWidget {
   const TaskHistory({super.key});
 
+  void _showTaskDetails(BuildContext context, var task) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Task Details',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Task ID:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text('${task['taskId']}', style: TextStyle(fontWeight: FontWeight.normal)),
+                SizedBox(height: 8),
+                Text(
+                  'Task Type:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text('${task['taskType']}', style: TextStyle(fontWeight: FontWeight.normal)),
+                SizedBox(height: 8),
+                Text(
+                  'Date:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text('${task['date']}', style: TextStyle(fontWeight: FontWeight.normal)),
+                SizedBox(height: 8),
+                Text(
+                  'Time:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text('${task['time']}', style: TextStyle(fontWeight: FontWeight.normal)),
+                SizedBox(height: 8),
+                Text(
+                  'Description:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text('${task['description']}', style: TextStyle(fontWeight: FontWeight.normal)),
+                SizedBox(height: 8),
+                Text(
+                  'Rate (Price):',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text('RM${task['price']}', style: TextStyle(fontWeight: FontWeight.normal)),
+                SizedBox(height: 8),
+                Text(
+                  'Status:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  '${task['status']}',
+                  style: TextStyle(
+                    fontWeight: FontWeight.normal,
+                    color: task['status'] == 'Completed' ? Colors.green : Colors.red,
+                  ),
+                ),
+                SizedBox(height: 16),
+                Center(
+                  child: Container(
+                    width: 200,
+                    height: 200,
+                    color: Colors.grey[300],
+                    child: Center(
+                      child: Text(
+                        'X',
+                        style: TextStyle(fontSize: 50, color: Colors.red, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -110,7 +201,9 @@ class TaskHistory extends StatelessWidget {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     ElevatedButton(
-                                      onPressed: () {}, // Maintain "Check Details" button
+                                      onPressed: () {
+                                        _showTaskDetails(context, task); // Show the task details in popup
+                                      },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Color.fromARGB(255, 8, 196, 236),
                                       ),
