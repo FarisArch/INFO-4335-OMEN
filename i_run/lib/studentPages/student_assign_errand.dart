@@ -1,142 +1,81 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-import 'package:i_run/services/mapscreen.dart'; // Import the MapScreen
-import 'dart:math';
+import 'package:geocoding/geocoding.dart'; // For converting lat/long to place names
 
-class studentAssignErrand extends StatefulWidget {
-  const studentAssignErrand({super.key});
+class ErrandProgress extends StatefulWidget {
+  final String errandId; // Receiving errand ID to fetch its details
+  const ErrandProgress({super.key, required this.errandId});
 
   @override
-  State<studentAssignErrand> createState() => _studentAssignErrandState();
+  State<ErrandProgress> createState() => _ErrandProgressState();
 }
 
-class _studentAssignErrandState extends State<studentAssignErrand> {
-  String dropdownValueTaskType = 'Item Delivery';
-  String selectedDate = 'Select Date';
-  String selectedTime = 'Select Time';
-  String taskDescription = '';
-  LatLng? pickupLocation;
-  LatLng? deliveryLocation;
-  File? selectedImage;
-  double price = 50.0; // Default price
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final ImagePicker _imagePicker = ImagePicker();
+class _ErrandProgressState extends State<ErrandProgress> {
+  String errandStatus = "Errand in progress"; // Default status
+  Map<String, dynamic>? errandDetails; // Stores errand details from Firestore
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance; // Firestore instance
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2101),
-    );
-    if (pickedDate != null) {
-      setState(() {
-        selectedDate = '${pickedDate.toLocal()}'.split(' ')[0];
-      });
-    }
+  @override
+  void initState() {
+    super.initState();
+    fetchErrandDetails(); // Fetch errand details when screen loads
   }
 
-  Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? pickedTime = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-    if (pickedTime != null) {
-      setState(() {
-        selectedTime = pickedTime.format(context);
-      });
-    }
-  }
-
-  Future<void> _navigateToMapScreen(bool isPickup) async {
-    final LatLng? location = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MapScreen(isPickup: isPickup),
-      ),
-    );
-    if (location != null) {
-      setState(() {
-        if (isPickup) {
-          pickupLocation = location;
-        } else {
-          deliveryLocation = location;
-        }
-      });
-    }
-  }
-
-  Future<void> _pickImageFromGallery() async {
-    final XFile? image = await _imagePicker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() {
-        selectedImage = File(image.path);
-      });
-    }
-  }
-
-  Future<void> _takePicture() async {
-    final XFile? image = await _imagePicker.pickImage(source: ImageSource.camera);
-    if (image != null) {
-      setState(() {
-        selectedImage = File(image.path);
-      });
-    }
-  }
-
-  Future<void> _submitErrand() async {
-    if (selectedDate == 'Select Date' || selectedTime == 'Select Time' || taskDescription.isEmpty || pickupLocation == null || deliveryLocation == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in all fields')),
-      );
-      return;
-    }
-
-    // Generate a unique Task ID (e.g., T123456)
-    String taskId = 'T${Random().nextInt(900000) + 100000}';
-
+  Future<void> fetchErrandDetails() async {
     try {
-      await _firestore.collection('errands').add({
-        'taskId': taskId,
-        'taskType': dropdownValueTaskType,
-        'date': selectedDate,
-        'time': selectedTime,
-        'description': taskDescription,
-        'price': price, // Include price
-        'pickupLocation': {
-          'latitude': pickupLocation!.latitude,
-          'longitude': pickupLocation!.longitude,
-        },
-        'deliveryLocation': {
-          'latitude': deliveryLocation!.latitude,
-          'longitude': deliveryLocation!.longitude,
-        },
-        'image': selectedImage != null ? selectedImage!.path : null,
-        'assigned': null,
-        'status': 'Available',
-      });
+      // Fetch errand document from Firestore using the given errandId
+      DocumentSnapshot errandSnapshot = await _firestore.collection('errands').doc(widget.errandId).get();
+      
+      if (errandSnapshot.exists) {
+        Map<String, dynamic> data = errandSnapshot.data() as Map<String, dynamic>;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Errand successfully assigned')),
-      );
+        // Convert delivery location lat/long to place name
+        String deliveryPlaceName = await _convertLatLongToPlaceName(
+          data["deliveryLocation"]["latitude"],
+          data["deliveryLocation"]["longitude"],
+        );
 
-      setState(() {
-        dropdownValueTaskType = 'Item Delivery';
-        selectedDate = 'Select Date';
-        selectedTime = 'Select Time';
-        taskDescription = '';
-        pickupLocation = null;
-        deliveryLocation = null;
-        selectedImage = null;
-        price = 50.0; // Reset price
-      });
+        // Convert pickup location lat/long to place name
+        String pickupPlaceName = await _convertLatLongToPlaceName(
+          data["pickupLocation"]["latitude"],
+          data["pickupLocation"]["longitude"],
+        );
+
+        setState(() {
+          errandDetails = data;
+          // Store converted place names into the errandDetails map
+          errandDetails?["deliveryLocation"]["placeName"] = deliveryPlaceName;
+          errandDetails?["pickupLocation"]["placeName"] = pickupPlaceName;
+          // Update status from Firestore data
+          errandStatus = errandDetails?["status"] ?? "Errand in progress";
+        });
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error assigning errand: $e')),
-      );
+      print("Error fetching errand details: $e");
+    }
+  }
+
+  // Convert latitude and longitude to a readable place name
+  Future<String> _convertLatLongToPlaceName(double latitude, double longitude) async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks.first;
+        return "${place.name}, ${place.locality}, ${place.country}"; // Format the place name
+      }
+    } catch (e) {
+      print("Error converting lat/long to place name: $e");
+    }
+    return "Unknown Location"; // Return default value if conversion fails
+  }
+
+  // Update errand status in Firestore
+  Future<void> updateErrandStatus(String status) async {
+    try {
+      setState(() => errandStatus = status); // Update UI immediately
+      await _firestore.collection('errands').doc(widget.errandId).update({'status': status});
+    } catch (e) {
+      print("Error updating errand status: $e");
     }
   }
 
@@ -144,195 +83,84 @@ class _studentAssignErrandState extends State<studentAssignErrand> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "IIUM ERRAND RUNNER",
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: const Color.fromARGB(255, 8, 164, 92),
+        title: Text("IIUM ERRAND RUNNER", style: TextStyle(color: Colors.white)),
+        backgroundColor: Color.fromARGB(255, 8, 164, 92),
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Center(
-                  child: Text(
-                    "Assign Errand",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+      body: errandDetails == null
+          ? Center(child: CircularProgressIndicator()) // Show loading indicator while fetching data
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text('Errand Progress', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 16),
+                  
+                  // Display errand details inside a styled container
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Task Type: ${errandDetails?["taskType"]}", style: TextStyle(fontSize: 16)),
+                        Text("Date: ${errandDetails?["date"]}", style: TextStyle(fontSize: 16)),
+                        Text("Time: ${errandDetails?["time"]}", style: TextStyle(fontSize: 16)),
+                        Text("Rate: RM ${errandDetails?["price"]}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue)),
+                        SizedBox(height: 8),
+                        Text("Pickup Location: ${errandDetails?["pickupLocation"]["placeName"]}", style: TextStyle(fontSize: 16)),
+                        Text("Delivery Location: ${errandDetails?["deliveryLocation"]["placeName"]}", style: TextStyle(fontSize: 16)),
+                        Text("Description: ${errandDetails?["description"]}", style: TextStyle(fontSize: 16)),
+                        SizedBox(height: 12),
+
+                        // Display errand image if available
+                        errandDetails?["image"] != null
+                            ? Image.network(errandDetails?["image"], width: 100, height: 100, fit: BoxFit.cover)
+                            : SizedBox.shrink(),
+                      ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 8, 164, 92),
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  SizedBox(height: 16),
+
+                  // Status selection section
+                  Text('Select Status:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 8),
+                  Column(
                     children: [
-                      DropdownButtonFormField<String>(
-                        value: dropdownValueTaskType,
-                        isExpanded: true,
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            dropdownValueTaskType = newValue!;
-                          });
-                        },
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 10.0,
-                            vertical: 8.0,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        items: [
-                          'Item Delivery',
-                          'Food Delivery',
-                          'Pickup'
-                        ].map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                      ),
-                      const SizedBox(height: 16),
-                      GestureDetector(
-                        onTap: () => _selectDate(context),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFD9D9D9),
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          child: Center(child: Text(selectedDate)),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      GestureDetector(
-                        onTap: () => _selectTime(context),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFD9D9D9),
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          child: Center(child: Text(selectedTime)),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () => _navigateToMapScreen(true),
-                        child: Text(
-                          pickupLocation == null ? 'Select Pickup Location' : 'Pickup Location Selected',
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () => _navigateToMapScreen(false),
-                        child: Text(
-                          deliveryLocation == null ? 'Select Delivery Location' : 'Delivery Location Selected',
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        onChanged: (value) {
-                          setState(() {
-                            taskDescription = value;
-                          });
-                        },
-                        decoration: InputDecoration(
-                          hintText: 'Enter task description',
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 10.0,
-                            vertical: 12.0,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          const Text(
-                            'Price:',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Slider(
-                              value: price,
-                              min: 0,
-                              max: 100,
-                              divisions: 100,
-                              label: 'RM ${price.toStringAsFixed(0)}',
-                              onChanged: (value) {
-                                setState(() {
-                                  price = value;
-                                });
-                              },
-                            ),
-                          ),
-                          Text(
-                            'RM ${price.toStringAsFixed(0)}',
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          ElevatedButton(
-                            onPressed: _pickImageFromGallery,
-                            child: const Text('Upload Image'),
-                          ),
-                          ElevatedButton(
-                            onPressed: _takePicture,
-                            child: const Text('Take Picture'),
-                          ),
-                        ],
-                      ),
-                      if (selectedImage != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 16.0),
-                          child: Image.file(
-                            selectedImage!,
-                            width: double.infinity,
-                            height: 200,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: _submitErrand,
-                        child: const Text('Submit'),
-                      ),
+                      buildStatusButton("On my way!"),
+                      SizedBox(height: 8),
+                      buildStatusButton("Errand in progress"),
+                      SizedBox(height: 8),
+                      buildStatusButton("Task Completed"),
                     ],
                   ),
-                ),
-              ],
+                  SizedBox(height: 16),
+
+                  // Back button to return to runner dashboard
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/runner_dashboard');
+                    },
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    child: Text("Back", style: TextStyle(color: Colors.white)),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ),
+    );
+  }
+
+  // Button to update errand status
+  Widget buildStatusButton(String status) {
+    return ElevatedButton(
+      onPressed: () => updateErrandStatus(status), // Update status when pressed
+      style: ElevatedButton.styleFrom(
+        backgroundColor: errandStatus == status ? Colors.green : Colors.grey[600], // Highlight selected status
       ),
+      child: Text(status, style: TextStyle(color: Colors.white)),
     );
   }
 }
