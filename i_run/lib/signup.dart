@@ -22,6 +22,9 @@ class _SignUpPageState extends State<SignUpPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  final _formKey = GlobalKey<FormState>();
+  bool _isLoading = false; // State for loading indicator
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,59 +32,68 @@ class _SignUpPageState extends State<SignUpPage> {
         backgroundColor: const Color.fromARGB(255, 8, 164, 92),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // App Logo Section
-              const SizedBox(
-                height: 80,
-                width: 80,
-                child: Placeholder(), // Replace with Image.asset for your logo
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                "IIUM ERRAND RUNNER (IER)",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // App Logo Section
+                const SizedBox(height: 80, width: 80, child: Placeholder()),
+                const SizedBox(height: 10),
+                const Text(
+                  "IIUM ERRAND RUNNER (IER)",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-              ),
-              const SizedBox(height: 20),
-              // Form Fields
-              _buildTextField(_fullNameController, "Full Name"),
-              _buildTextField(_emailController, "Email"),
-              _buildTextField(_phoneNumberController, "Phone Number"),
-              _buildTextField(_matricNumberController, "Matric No."),
-              _buildTextField(_passwordController, "Password", isPassword: true),
-              _buildTextField(_confirmPasswordController, "Confirm Password", isPassword: true),
-              const SizedBox(height: 20),
-              // Submit Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 8, 164, 92),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                const SizedBox(height: 20),
+
+                // Form Fields with Validation
+                _buildTextField(_fullNameController, "Full Name", validator: (value) {
+                  return value!.isEmpty ? "Full Name is required" : null;
+                }),
+                _buildTextField(_emailController, "Email", validator: (value) {
+                  return value!.isEmpty || !value.contains("@") ? "Enter a valid email" : null;
+                }),
+                _buildTextField(_phoneNumberController, "Phone Number", validator: (value) {
+                  return value!.isEmpty || value.length < 10 ? "Enter a valid phone number" : null;
+                }),
+                _buildTextField(_matricNumberController, "Matric No.", validator: (value) {
+                  return value!.isEmpty ? "Matric No. is required" : null;
+                }),
+                _buildTextField(_passwordController, "Password", isPassword: true, validator: (value) {
+                  return value!.length < 6 ? "Password must be at least 6 characters" : null;
+                }),
+                _buildTextField(_confirmPasswordController, "Confirm Password", isPassword: true, validator: (value) {
+                  return value != _passwordController.text ? "Passwords do not match" : null;
+                }),
+
+                const SizedBox(height: 20),
+
+                // Submit Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 8, 164, 92),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
                     ),
-                  ),
-                  onPressed: _signUpUser, // Call sign-up function
-                  child: const Text(
-                    "Submit",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    onPressed: _isLoading ? null : _signUpUser, // Disable button while loading
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                            "Submit",
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -89,23 +101,18 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   // 🔹 Function to handle user sign-up
-  void _signUpUser() async {
+  Future<void> _signUpUser() async {
+    if (!_formKey.currentState!.validate()) return; // Validate form
+
+    setState(() {
+      _isLoading = true; // Show loading indicator
+    });
+
     String fullName = _fullNameController.text.trim();
     String email = _emailController.text.trim();
     String phoneNumber = _phoneNumberController.text.trim();
     String matricNumber = _matricNumberController.text.trim();
     String password = _passwordController.text.trim();
-    String confirmPassword = _confirmPasswordController.text.trim();
-
-    if (fullName.isEmpty || email.isEmpty || phoneNumber.isEmpty || matricNumber.isEmpty || password.isEmpty) {
-      Fluttertoast.showToast(msg: "Please fill in all fields");
-      return;
-    }
-
-    if (password != confirmPassword) {
-      Fluttertoast.showToast(msg: "Passwords do not match!");
-      return;
-    }
 
     try {
       // 🔥 Create user in Firebase Authentication
@@ -114,7 +121,7 @@ class _SignUpPageState extends State<SignUpPage> {
         password: password,
       );
 
-      // Get the UID of the registered user
+      // Get UID
       String uid = userCredential.user!.uid;
 
       // 🔥 Store additional user info in Firestore
@@ -123,23 +130,41 @@ class _SignUpPageState extends State<SignUpPage> {
         'email': email,
         'phoneNumber': phoneNumber,
         'matricNumber': matricNumber,
-        'uid': uid, // Store UID for reference
+        'uid': uid, // Store UID
+        'createdAt': FieldValue.serverTimestamp(),
       });
 
       Fluttertoast.showToast(msg: "User signed up successfully!");
-      Navigator.pop(context); // Go back to login page
+      Navigator.pop(context); // Navigate back
+
+    } on FirebaseAuthException catch (e) {
+      String errorMsg;
+      if (e.code == 'email-already-in-use') {
+        errorMsg = "Email is already registered!";
+      } else if (e.code == 'weak-password') {
+        errorMsg = "Password is too weak!";
+      } else {
+        errorMsg = "Error: ${e.message}";
+      }
+      Fluttertoast.showToast(msg: errorMsg);
     } catch (e) {
-      Fluttertoast.showToast(msg: "Error: $e");
+      Fluttertoast.showToast(msg: "Unexpected Error: $e");
     }
+
+    setState(() {
+      _isLoading = false; // Hide loading indicator
+    });
   }
 
-  // 🔹 Function to build text fields
-  Widget _buildTextField(TextEditingController controller, String labelText, {bool isPassword = false}) {
+  // 🔹 Function to build text fields with validation
+  Widget _buildTextField(TextEditingController controller, String labelText,
+      {bool isPassword = false, String? Function(String?)? validator}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: TextField(
+      child: TextFormField(
         controller: controller,
         obscureText: isPassword,
+        validator: validator,
         decoration: InputDecoration(
           labelText: labelText,
           filled: true,
