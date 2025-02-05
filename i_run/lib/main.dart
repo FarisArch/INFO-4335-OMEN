@@ -31,6 +31,7 @@ void main() async {
       '/runnerInfo': (context) => RunnerInfoPage(
        uid: 'DKvpYsQBdGXr3oQ230fa',
       ),
+      '/studentErrandProgress':(context) => ErrandProgress(errandId: 'WRnUlMxl9gfVjO4643Ae'),
       '/runnerApplication': (context) => RunnerApplicationPage(),
       '/signup': (context) => SignUpPage(),
       '/login': (context) => LoginPage(),
