@@ -45,31 +45,30 @@ class _LoginPageState extends State<LoginPage> {
                   child: Image.asset(
                     'assets/images/logo app.png',
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => 
-                      Icon(Icons.error, size: 40, color: Colors.red), // Error handler
+                    errorBuilder: (context, error, stackTrace) =>
+                        Icon(Icons.error, size: 40, color: Colors.red), // Error handler
                   ),
                 ),
-
                 const SizedBox(height: 20),
                 const Text(
                   "IIUM ERRAND RUNNER (IER)",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 30),
-
                 // Email Field
                 _buildTextField(_emailController, "Email", validator: (value) {
-                  return value!.isEmpty || !value.contains("@") ? "Enter a valid email" : null;
+                  return value!.isEmpty || !value.contains("@")
+                      ? "Enter a valid email"
+                      : null;
                 }),
-
                 // Password Field
                 _buildTextField(_passwordController, "Password",
                     isPassword: true, validator: (value) {
-                  return value!.length < 6 ? "Password must be at least 6 characters" : null;
+                  return value!.length < 6
+                      ? "Password must be at least 6 characters"
+                      : null;
                 }),
-
                 const SizedBox(height: 20),
-
                 // Login Button
                 SizedBox(
                   width: double.infinity,
@@ -77,7 +76,8 @@ class _LoginPageState extends State<LoginPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 8, 164, 92),
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0)),
                     ),
                     onPressed: _isLoading ? null : _loginUser,
                     child: _isLoading
@@ -88,9 +88,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                   ),
                 ),
-
                 const SizedBox(height: 10),
-
                 // Signup Navigation
                 TextButton(
                   onPressed: () {
@@ -122,6 +120,12 @@ class _LoginPageState extends State<LoginPage> {
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
+
+      // Get the user's UID (session ID)
+      String userId = userCredential.user!.uid;
+
+      // Print the session ID in the terminal (console)
+      print("User logged in with UID: $userId");
 
       Fluttertoast.showToast(msg: "Login successful!");
 

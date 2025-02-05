@@ -1,33 +1,56 @@
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:geocoding/geocoding.dart'; // For converting lat/long to place names
 
 class TaskProgress extends StatefulWidget {
-  final String taskId;
-  const TaskProgress({super.key, required this.taskId});
+  const TaskProgress({super.key});
 
   @override
   State<TaskProgress> createState() => _TaskProgressState();
 }
 
 class _TaskProgressState extends State<TaskProgress> {
-  String taskStatus = "Errand in progress";
-  Map<String, dynamic>? taskDetails;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String errandStatus = "Errand in progress"; // Default status
+  Map<String, dynamic>? errandDetails; // Stores errand details from Firestore
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance; // Firestore instance
 
   @override
   void initState() {
     super.initState();
-    fetchTaskDetails();
+    fetchTask(); // Fetch task details when screen loads
   }
 
-  Future<void> fetchTaskDetails() async {
+  Future<void> fetchTask() async {
     try {
-      DocumentSnapshot taskSnapshot = await _firestore.collection('errands').doc(widget.taskId).get();
-      if (taskSnapshot.exists) {
+      // Fetch task document from Firestore using the first task with status "Accepted"
+      QuerySnapshot snapshot = await _firestore
+          .collection('errands')
+          .where('status', isEqualTo: 'Accepted') // Filter by status "Accepted"
+          .limit(1)
+          .get();
+      
+      if (snapshot.docs.isNotEmpty) {
+        Map<String, dynamic> data = snapshot.docs.first.data() as Map<String, dynamic>;
+
+        // Convert delivery location lat/long to place name
+        String deliveryPlaceName = await _convertLatLongToPlaceName(
+          data["deliveryLocation"]["latitude"],
+          data["deliveryLocation"]["longitude"],
+        );
+
+        // Convert pickup location lat/long to place name
+        String pickupPlaceName = await _convertLatLongToPlaceName(
+          data["pickupLocation"]["latitude"],
+          data["pickupLocation"]["longitude"],
+        );
+
         setState(() {
-          taskDetails = taskSnapshot.data() as Map<String, dynamic>;
-          taskStatus = taskDetails?["status"] ?? "Errand in progress";
+          errandDetails = data;
+          // Store converted place names into the errandDetails map
+          errandDetails?["deliveryLocation"]["placeName"] = deliveryPlaceName;
+          errandDetails?["pickupLocation"]["placeName"] = pickupPlaceName;
+          // Update status from Firestore data
+          errandStatus = errandDetails?["status"] ?? "Errand in progress";
         });
       }
     } catch (e) {
@@ -35,10 +58,25 @@ class _TaskProgressState extends State<TaskProgress> {
     }
   }
 
+  // Convert latitude and longitude to a readable place name
+  Future<String> _convertLatLongToPlaceName(double latitude, double longitude) async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks.first;
+        return "${place.name}, ${place.locality}, ${place.country}"; // Format the place name
+      }
+    } catch (e) {
+      print("Error converting lat/long to place name: $e");
+    }
+    return "Unknown Location"; // Return default value if conversion fails
+  }
+
+  // Update task status in Firestore
   Future<void> updateTaskStatus(String status) async {
     try {
-      setState(() => taskStatus = status);
-      await _firestore.collection('errands').doc(widget.taskId).update({'status': status});
+      setState(() => errandStatus = status); // Update UI immediately
+      await _firestore.collection('errands').doc(errandDetails?["taskId"]).update({'status': status});
     } catch (e) {
       print("Error updating task status: $e");
     }
@@ -48,11 +86,11 @@ class _TaskProgressState extends State<TaskProgress> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("IIUM ERRAND RUNNER", style: TextStyle(color: Colors.white)),
+        title: Text("Task Progress", style: TextStyle(color: Colors.white)),
         backgroundColor: Color.fromARGB(255, 8, 164, 92),
       ),
-      body: taskDetails == null
-          ? Center(child: CircularProgressIndicator())
+      body: errandDetails == null
+          ? Center(child: CircularProgressIndicator()) // Show loading indicator while fetching data
           : Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -60,6 +98,8 @@ class _TaskProgressState extends State<TaskProgress> {
                 children: [
                   Text('Task Progress', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   SizedBox(height: 16),
+
+                  // Display task details inside a styled container
                   Container(
                     padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -69,20 +109,26 @@ class _TaskProgressState extends State<TaskProgress> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Task Type: ${taskDetails?["taskType"]}", style: TextStyle(fontSize: 16)),
-                        Text("Date: ${taskDetails?["date"]}", style: TextStyle(fontSize: 16)),
-                        Text("Time: ${taskDetails?["time"]}", style: TextStyle(fontSize: 16)),
-                        Text("Rate: RM ${taskDetails?["price"]}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue)),
+                        Text("Task Type: ${errandDetails?["taskType"]}", style: TextStyle(fontSize: 16)),
+                        Text("Date: ${errandDetails?["date"]}", style: TextStyle(fontSize: 16)),
+                        Text("Time: ${errandDetails?["time"]}", style: TextStyle(fontSize: 16)),
+                        Text("Rate: RM ${errandDetails?["price"]}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue)),
                         SizedBox(height: 8),
-                        Text("Task Description: ${taskDetails?["deliveryLocation"]?["description"]}", style: TextStyle(fontSize: 16)),
+                        Text("Pickup Location: ${errandDetails?["pickupLocation"]["placeName"]}", style: TextStyle(fontSize: 16)),
+                        Text("Delivery Location: ${errandDetails?["deliveryLocation"]["placeName"]}", style: TextStyle(fontSize: 16)),
+                        Text("Description: ${errandDetails?["description"]}", style: TextStyle(fontSize: 16)),
                         SizedBox(height: 12),
-                        taskDetails?["image"] != null
-                            ? Image.network(taskDetails?["image"], width: 100, height: 100, fit: BoxFit.cover)
+
+                        // Display errand image if available
+                        errandDetails?["image"] != null
+                            ? Image.network(errandDetails?["image"], width: 100, height: 100, fit: BoxFit.cover)
                             : SizedBox.shrink(),
                       ],
                     ),
                   ),
                   SizedBox(height: 16),
+
+                  // Status selection section
                   Text('Select Status:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   SizedBox(height: 8),
                   Column(
@@ -95,6 +141,8 @@ class _TaskProgressState extends State<TaskProgress> {
                     ],
                   ),
                   SizedBox(height: 16),
+
+                  // Back button to return to runner dashboard
                   ElevatedButton(
                     onPressed: () {
                       Navigator.pushReplacementNamed(context, '/runner_dashboard');
@@ -108,11 +156,12 @@ class _TaskProgressState extends State<TaskProgress> {
     );
   }
 
+  // Button to update task status
   Widget buildStatusButton(String status) {
     return ElevatedButton(
-      onPressed: () => updateTaskStatus(status),
+      onPressed: () => updateTaskStatus(status), // Update status when pressed
       style: ElevatedButton.styleFrom(
-        backgroundColor: taskStatus == status ? Colors.green : Colors.grey[600],
+        backgroundColor: errandStatus == status ? Colors.green : Colors.grey[600], // Highlight selected status
       ),
       child: Text(status, style: TextStyle(color: Colors.white)),
     );

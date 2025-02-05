@@ -21,7 +21,7 @@ void main() async {
   FirebaseFirestore.instance.settings = Settings(persistenceEnabled: true);
 
  runApp(
-    MaterialApp(initialRoute:  '/studentInfo', routes: {
+    MaterialApp(initialRoute:  '/login', routes: {
       '/': (context) => Splashscreen(),
       '/studentDashboard': (context) => studentDashboard(),
       '/studentAssignErrand': (context) => studentAssignErrand(),
@@ -35,6 +35,9 @@ void main() async {
       '/runnerApplication': (context) => RunnerApplicationPage(),
       '/signup': (context) => SignUpPage(),
       '/login': (context) => LoginPage(),
+      '/taskHistory': (context) => TaskHistory(),
+      '/taskProgress': (context) => TaskProgress(),
+
     }),
   );
 }

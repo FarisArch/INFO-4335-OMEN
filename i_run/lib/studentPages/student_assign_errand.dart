@@ -55,7 +55,12 @@ class _studentAssignErrandState extends State<studentAssignErrand> {
     final LatLng? location = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => MapScreen(isPickup: isPickup),
+        builder: (context) => MapScreen(
+          isPickup: isPickup,
+          isSelecting: true,
+          pickupLocation: pickupLocation,
+          deliveryLocation: deliveryLocation,
+        ),
       ),
     );
     if (location != null) {
@@ -322,7 +327,10 @@ class _studentAssignErrandState extends State<studentAssignErrand> {
                         ),
                       const SizedBox(height: 16),
                       ElevatedButton(
-                        onPressed: _submitErrand,
+                        onPressed: () {
+                          _submitErrand();
+                          Navigator.pushNamed(context, '/studentDashboard');
+                        },
                         child: const Text('Submit'),
                       ),
                     ],

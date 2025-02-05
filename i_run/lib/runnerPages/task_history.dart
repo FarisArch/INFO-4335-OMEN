@@ -121,7 +121,8 @@ class TaskHistory extends StatelessWidget {
               child: StreamBuilder(
                 stream: FirebaseFirestore.instance
                     .collection('errands')
-                    .orderBy('taskId') // Sort by taskID
+                    .where('status', isEqualTo: 'Completed') // Filter by status = 'Completed'
+                    .orderBy('taskId') // Sort by taskId
                     .snapshots(),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -131,7 +132,7 @@ class TaskHistory extends StatelessWidget {
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                     return Center(
                       child: Text(
-                        'No tasks found.',
+                        'No completed tasks found.',
                         style: TextStyle(fontSize: 18, color: Colors.black54),
                       ),
                     );

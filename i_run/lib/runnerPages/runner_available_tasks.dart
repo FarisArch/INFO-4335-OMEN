@@ -13,26 +13,31 @@ class runnerAvailableTasks extends StatefulWidget {
 class _runnerAvailableTasksState extends State<runnerAvailableTasks> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  void _navigateToMapScreen(Map<String, dynamic> pickup, Map<String, dynamic> delivery) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MapScreen(
-          pickupLocation: LatLng(pickup['latitude'], pickup['longitude']),
-          deliveryLocation: LatLng(delivery['latitude'], delivery['longitude']),
+  void _navigateToMapScreen(Map<String, dynamic>? pickup, Map<String, dynamic>? delivery) {
+    if (pickup != null && delivery != null && pickup.containsKey('latitude') && pickup.containsKey('longitude') && delivery.containsKey('latitude') && delivery.containsKey('longitude')) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MapScreen(
+            pickupLocation: LatLng(pickup['latitude'], pickup['longitude']),
+            deliveryLocation: LatLng(delivery['latitude'], delivery['longitude']),
+          ),
         ),
-      ),
-    );
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid location data')),
+      );
+    }
   }
 
   Future<void> _acceptTask(String taskId) async {
     try {
       await _firestore.collection('errands').doc(taskId).update({
-        'status': 'Accepted', // Update the status field
-        'assigned': true, // Mark the task as assigned
+        'status': 'Accepted',
+        'assigned': true,
       });
     } catch (e) {
-      // Handle error (optional)
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error accepting task')),
       );
@@ -50,11 +55,7 @@ class _runnerAvailableTasksState extends State<runnerAvailableTasks> {
         backgroundColor: const Color.fromARGB(255, 8, 164, 92),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _firestore
-            .collection('errands')
-            .where('status', isEqualTo: 'Available') // Filter tasks with status "Available"
-            .where('assigned', isEqualTo: null) // Ensure 'assigned' is null
-            .snapshots(),
+        stream: _firestore.collection('errands').where('status', isEqualTo: 'Available').where('assigned', isEqualTo: null).snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -78,21 +79,20 @@ class _runnerAvailableTasksState extends State<runnerAvailableTasks> {
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
-                      mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              errand['time'],
+                              errand['time'] ?? 'N/A',
                               style: const TextStyle(
                                 color: Colors.black54,
                                 fontSize: 14,
                               ),
                             ),
                             Text(
-                              errand['date'],
+                              errand['date'] ?? 'N/A',
                               style: const TextStyle(
                                 color: Colors.black54,
                                 fontSize: 14,
@@ -102,7 +102,7 @@ class _runnerAvailableTasksState extends State<runnerAvailableTasks> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          "Task ID: ${errand['taskId']}",
+                          "Task ID: ${errand['taskId'] ?? 'N/A'}",
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -111,7 +111,7 @@ class _runnerAvailableTasksState extends State<runnerAvailableTasks> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          errand['taskType'],
+                          errand['taskType'] ?? 'No task type',
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -123,7 +123,7 @@ class _runnerAvailableTasksState extends State<runnerAvailableTasks> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          errand['description'],
+                          errand['description'] ?? 'No description available',
                           style: const TextStyle(
                             fontSize: 16,
                             color: Colors.black87,
@@ -135,7 +135,10 @@ class _runnerAvailableTasksState extends State<runnerAvailableTasks> {
                           children: [
                             ElevatedButton(
                               onPressed: () {
-                                _navigateToMapScreen(errand['pickupLocation'], errand['deliveryLocation']);
+                                _navigateToMapScreen(
+                                  errand['pickupLocation'],
+                                  errand['deliveryLocation'],
+                                );
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.orange,
@@ -147,7 +150,7 @@ class _runnerAvailableTasksState extends State<runnerAvailableTasks> {
                             ),
                             ElevatedButton(
                               onPressed: () {
-                                _acceptTask(errand.id); // Accept the task when button is clicked
+                                _acceptTask(errand.id);
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color.fromARGB(255, 8, 196, 236),
