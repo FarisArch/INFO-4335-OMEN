@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:i_run/pages.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Add this import
+import 'package:fluttertoast/fluttertoast.dart'; // Optional, for feedback
 
 class studentDashboard extends StatefulWidget {
   const studentDashboard({super.key});
@@ -9,6 +10,19 @@ class studentDashboard extends StatefulWidget {
 }
 
 class _studentDashboardState extends State<studentDashboard> {
+  final FirebaseAuth _auth = FirebaseAuth.instance; // Firebase Auth instance
+
+  // Logout function
+  Future<void> _logout() async {
+    try {
+      await _auth.signOut(); // Sign out the user
+      Fluttertoast.showToast(msg: "Logged out successfully!");
+      Navigator.pushReplacementNamed(context, '/login'); // Redirect to login
+    } catch (e) {
+      Fluttertoast.showToast(msg: "Error logging out: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,28 +38,25 @@ class _studentDashboardState extends State<studentDashboard> {
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Color.fromARGB(255, 8, 164, 92),
               ),
-              child: Text(
+              child: const Text(
                 'Menu',
                 style: TextStyle(color: Colors.white, fontSize: 24),
               ),
             ),
             ListTile(
-              leading: Icon(Icons.directions_run),
-              title: Text('Switch to Runner Dashboard'),
+              leading: const Icon(Icons.directions_run),
+              title: const Text('Switch to Runner Dashboard'),
               onTap: () {
                 Navigator.pushNamed(context, '/runnerDashboard');
               },
             ),
             ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Logout'),
-              onTap: () {
-                // Add logout functionality here
-                Navigator.pushReplacementNamed(context, '/login');
-              },
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
+              onTap: _logout, // Call the logout function
             ),
           ],
         ),
@@ -74,9 +85,7 @@ class _studentDashboardState extends State<studentDashboard> {
                         Navigator.pushNamed(context, '/studentAssignErrand');
                       }),
                       _dashboardButton('Errand Progress', () {
-                        Navigator.pushNamed(context, '/studentErrandProgress', arguments: {
-                          'errandId': 'WRnUlMxl9gfVjO4643Ae'
-                        });
+                        Navigator.pushNamed(context, '/studentErrandProgress');
                       }),
                     ],
                   ),
@@ -84,12 +93,10 @@ class _studentDashboardState extends State<studentDashboard> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _dashboardButton('Apply as Runner', () {
-                        Navigator.pushNamed(context, '/runnerApplication'); //
+                        Navigator.pushNamed(context, ''); // Add route for Apply as Runner
                       }),
                       _dashboardButton('Personal Information', () {
-                        Navigator.pushNamed(context, '/studentInfo', arguments: {
-                          'uid': 'hR3v4p0ncbfo34ryPz9PlrXKKdE3'
-                        });
+                        Navigator.pushNamed(context, ''); // Add route for Personal Information
                       }),
                     ],
                   ),
