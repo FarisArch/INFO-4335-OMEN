@@ -27,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
           style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
-        automaticallyImplyLeading: false, // Removes the back button
+        automaticallyImplyLeading: false, // Remove back butto
       ),
       body: Center(
         child: Padding(
@@ -46,7 +46,7 @@ class _LoginPageState extends State<LoginPage> {
                     'assets/images/logo app.png',
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => 
-                      Icon(Icons.error, size: 40, color: Colors.red), // Error handler
+                      Icon(Icons.error, size: 40, color: Colors.red), 
                   ),
                 ),
 
@@ -56,8 +56,7 @@ class _LoginPageState extends State<LoginPage> {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 30),
-
-                // Email Field
+                
                 _buildTextField(_emailController, "Email", validator: (value) {
                   return value!.isEmpty || !value.contains("@") ? "Enter a valid email" : null;
                 }),
