@@ -93,10 +93,10 @@ class _studentDashboardState extends State<studentDashboard> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _dashboardButton('Apply as Runner', () {
-                        Navigator.pushNamed(context, ''); // Add route for Apply as Runner
+                        Navigator.pushNamed(context, '/runnerApplication'); // Add route for Apply as Runner
                       }),
                       _dashboardButton('Personal Information', () {
-                        Navigator.pushNamed(context, ''); // Add route for Personal Information
+                        Navigator.pushNamed(context, '/studentInfo',arguments:{'UID':'hR3v4p0ncbfo34ryPz9PlrXKKdE3'}); // Add route for Personal Information
                       }),
                     ],
                   ),
