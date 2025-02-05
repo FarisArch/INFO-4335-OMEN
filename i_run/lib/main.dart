@@ -31,7 +31,7 @@ void main() async {
       '/runnerInfo': (context) => RunnerInfoPage(
        uid: 'DKvpYsQBdGXr3oQ230fa',
       ),
-      
+      '/runnerApplication': (context) => RunnerApplicationPage(),
       '/signup': (context) => SignUpPage(),
       '/login': (context) => LoginPage(),
     }),
