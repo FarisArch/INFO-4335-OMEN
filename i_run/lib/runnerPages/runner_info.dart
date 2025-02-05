@@ -1,46 +1,146 @@
-import 'package:flutter/material.dart'; 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
-class TaskProgress extends StatefulWidget {
-  final String taskId;
-  const TaskProgress({super.key, required this.taskId});
+class RunnerInfoPage extends StatefulWidget {
+  final String uid;
+
+  const RunnerInfoPage({
+    Key? key,
+    required this.uid,
+  }) : super(key: key);
 
   @override
-  State<TaskProgress> createState() => _TaskProgressState();
+  _RunnerInfoPageState createState() => _RunnerInfoPageState();
 }
 
-class _TaskProgressState extends State<TaskProgress> {
-  String taskStatus = "Errand in progress";
-  Map<String, dynamic>? taskDetails;
+class _RunnerInfoPageState extends State<RunnerInfoPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final TextEditingController fullNameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController matricController = TextEditingController();
+  final TextEditingController vehicleRegController = TextEditingController();
+  final TextEditingController vehicleTypeController = TextEditingController();
+
+  bool _isLoading = true;
+  bool _runnerDataFound = false;
+  bool _isEditing = false;
+  bool _showSaveButton = false;
 
   @override
   void initState() {
     super.initState();
-    fetchTaskDetails();
+    _loadRunnerData();
   }
 
-  Future<void> fetchTaskDetails() async {
+    Future<void> _loadRunnerData() async {
     try {
-      DocumentSnapshot taskSnapshot = await _firestore.collection('errands').doc(widget.taskId).get();
-      if (taskSnapshot.exists) {
+      // 1. Validate UID format
+      if (widget.uid.isEmpty || widget.uid.length < 8) {
+        throw 'Invalid user ID format';
+      }
+
+      // 2. Fetch User Data with timeout
+      final userDoc = await _firestore.collection('users')
+          .doc(widget.uid)
+          .get()
+          .timeout(const Duration(seconds: 10));
+
+      if (!userDoc.exists) {
+        throw 'User document not found';
+      }
+
+      // 3. Validate user document fields
+      final userData = userDoc.data()!;
+      _validateUserDocument(userData);
+
+      // 4. Fetch Runner Data with field validation
+      final runnerQuery = await _firestore.collection('runners')
+          .where('userid', isEqualTo: widget.uid)
+          .limit(1)
+          .get()
+          .timeout(const Duration(seconds: 10));
+
+      if (runnerQuery.docs.isNotEmpty) {
+        final runnerDoc = runnerQuery.docs.first;
+        final runnerData = runnerDoc.data();
+        
+        _validateRunnerDocument(runnerData);
+        
+        vehicleRegController.text = runnerData['VehicleRegistration']?.toString() ?? 'N/A';
+        vehicleTypeController.text = runnerData['VehicleType']?.toString() ?? 'N/A';
+        _runnerDataFound = true;
+      }
+
+      if (mounted) {
         setState(() {
-          taskDetails = taskSnapshot.data() as Map<String, dynamic>;
-          taskStatus = taskDetails?["status"] ?? "Errand in progress";
+          fullNameController.text = userData['name']?.toString() ?? 'N/A';
+          emailController.text = userData['email']?.toString() ?? 'N/A';
+          phoneController.text = userData['phoneNumber']?.toString() ?? 'N/A';
+          matricController.text = userData['matricNo']?.toString() ?? 'N/A';
+          _isLoading = false;
         });
       }
+
     } catch (e) {
-      print("Error fetching task details: $e");
+      _handleError(e.toString());
     }
   }
 
-  Future<void> updateTaskStatus(String status) async {
+  void _validateUserDocument(Map<String, dynamic> data) {
+    if (data['name'] == null || data['email'] == null || data['matricNo'] == null) {
+      throw 'User document missing required fields';
+    }
+  }
+
+  void _validateRunnerDocument(Map<String, dynamic> data) {
+    if (data['VehicleRegistration'] == null || data['VehicleType'] == null) {
+      throw 'Runner document missing required fields';
+    }
+  }
+
+  void _handleError(String message) {
+    Fluttertoast.showToast(msg: message);
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+        vehicleRegController.text = 'Error';
+        vehicleTypeController.text = 'Error';
+      });
+    }
+  }
+
+
+  Future<void> _updateRunnerData() async {
     try {
-      setState(() => taskStatus = status);
-      await _firestore.collection('errands').doc(widget.taskId).update({'status': status});
+      // Update user data
+      await _firestore.collection('users').doc(widget.uid).update({
+        'name': fullNameController.text,
+        'email': emailController.text,
+        'phoneNumber': phoneController.text,
+      });
+
+      // Update runner data
+      final runnerQuery = await _firestore.collection('runners')
+          .where('userid', isEqualTo: widget.uid)
+          .limit(1)
+          .get();
+
+      if (runnerQuery.docs.isNotEmpty) {
+        await runnerQuery.docs.first.reference.update({
+          'VehicleRegistration': vehicleRegController.text,
+          'VehicleType': vehicleTypeController.text,
+        });
+      }
+
+      Fluttertoast.showToast(msg: "Profile updated successfully!");
+      setState(() {
+        _isEditing = false;
+        _showSaveButton = false;
+      });
     } catch (e) {
-      print("Error updating task status: $e");
+      Fluttertoast.showToast(msg: "Error updating profile: $e");
     }
   }
 
@@ -48,73 +148,178 @@ class _TaskProgressState extends State<TaskProgress> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("IIUM ERRAND RUNNER", style: TextStyle(color: Colors.white)),
-        backgroundColor: Color.fromARGB(255, 8, 164, 92),
+        title: const Text(
+          "IIUM ERRAND RUNNER",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color.fromARGB(255, 8, 164, 92),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
-      body: taskDetails == null
-          ? Center(child: CircularProgressIndicator())
-          : Padding(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Task Progress', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 16),
+                  const Center(
+                    child: Text(
+                      'Runner Information',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  
+                  // Personal Information Section
                   Container(
-                    padding: EdgeInsets.all(16),
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16.0),
                     decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(12),
+                      color: const Color.fromARGB(255, 8, 164, 92),
+                      borderRadius: BorderRadius.circular(8.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.3),
+                          spreadRadius: 3,
+                          blurRadius: 5,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Task Type: ${taskDetails?["taskType"]}", style: TextStyle(fontSize: 16)),
-                        Text("Date: ${taskDetails?["date"]}", style: TextStyle(fontSize: 16)),
-                        Text("Time: ${taskDetails?["time"]}", style: TextStyle(fontSize: 16)),
-                        Text("Rate: RM ${taskDetails?["price"]}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue)),
-                        SizedBox(height: 8),
-                        Text("Task Description: ${taskDetails?["deliveryLocation"]?["description"]}", style: TextStyle(fontSize: 16)),
-                        SizedBox(height: 12),
-                        taskDetails?["image"] != null
-                            ? Image.network(taskDetails?["image"], width: 100, height: 100, fit: BoxFit.cover)
-                            : SizedBox.shrink(),
+                        _buildEditableField('Full Name', fullNameController),
+                        const SizedBox(height: 15),
+                        _buildEditableField('Email', emailController),
+                        const SizedBox(height: 15),
+                        _buildEditableField('Phone Number', phoneController),
+                        const SizedBox(height: 15),
+                        _buildReadOnlyField('Matric Number', matricController),
                       ],
                     ),
                   ),
-                  SizedBox(height: 16),
-                  Text('Select Status:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 8),
-                  Column(
-                    children: [
-                      buildStatusButton("On my way!"),
-                      SizedBox(height: 8),
-                      buildStatusButton("Errand in progress"),
-                      SizedBox(height: 8),
-                      buildStatusButton("Task Completed"),
-                    ],
+                  
+                  const SizedBox(height: 25),
+                  
+                  // Runner Details Section
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 8, 164, 92),
+                      borderRadius: BorderRadius.circular(8.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.3),
+                          spreadRadius: 3,
+                          blurRadius: 5,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        _buildEditableField('Vehicle Registration', vehicleRegController),
+                        const SizedBox(height: 15),
+                        _buildEditableField('Vehicle Type', vehicleTypeController),
+                      ],
+                    ),
                   ),
-                  SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushReplacementNamed(context, '/runner_dashboard');
-                    },
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                    child: Text("Back", style: TextStyle(color: Colors.white)),
-                  ),
+                  
+                  const SizedBox(height: 25),
+                  
+                  // Save Button
+                  if (_showSaveButton)
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: _updateRunnerData,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 40, vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                        child: const Text(
+                          'Save Changes',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
     );
   }
 
-  Widget buildStatusButton(String status) {
-    return ElevatedButton(
-      onPressed: () => updateTaskStatus(status),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: taskStatus == status ? Colors.green : Colors.grey[600],
-      ),
-      child: Text(status, style: TextStyle(color: Colors.white)),
+  Widget _buildEditableField(String label, TextEditingController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            border: const OutlineInputBorder(),
+            contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12, vertical: 14),
+          ),
+          onChanged: (value) {
+            if (!_isEditing) {
+              setState(() {
+                _isEditing = true;
+                _showSaveButton = true;
+              });
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildReadOnlyField(String label, TextEditingController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          readOnly: true,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.grey[200],
+            border: const OutlineInputBorder(),
+            contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12, vertical: 14),
+          ),
+        ),
+      ],
     );
   }
 }
