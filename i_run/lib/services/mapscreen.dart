@@ -23,6 +23,11 @@ class _MapScreenState extends State<MapScreen> {
   late GoogleMapController mapController;
   LatLng? selectedLocation;
 
+  @override
+  void initState() {
+    super.initState();
+  }
+
   void _onMapTapped(LatLng latLng) {
     if (widget.isSelecting) {
       setState(() {
@@ -33,6 +38,50 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Set<Marker> markers = {};
+
+    if (widget.pickupLocation != null) {
+      markers.add(
+        Marker(
+          markerId: const MarkerId('pickup'),
+          position: widget.pickupLocation!,
+          infoWindow: const InfoWindow(title: 'Pickup Location'),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+        ),
+      );
+    }
+
+    if (widget.deliveryLocation != null) {
+      markers.add(
+        Marker(
+          markerId: const MarkerId('delivery'),
+          position: widget.deliveryLocation!,
+          infoWindow: const InfoWindow(title: 'Delivery Location'),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+        ),
+      );
+    }
+
+    if (widget.isSelecting && selectedLocation != null) {
+      markers.add(
+        Marker(
+          markerId: const MarkerId('selectedLocation'),
+          position: selectedLocation!,
+          infoWindow: InfoWindow(
+            title: widget.isPickup ? 'Selected Pickup Location' : 'Selected Delivery Location',
+          ),
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+            widget.isPickup ? BitmapDescriptor.hueBlue : BitmapDescriptor.hueOrange,
+          ),
+        ),
+      );
+    }
+
+    CameraPosition initialPosition = CameraPosition(
+      target: widget.pickupLocation ?? widget.deliveryLocation ?? const LatLng(37.4219983, -122.084),
+      zoom: 12,
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.isSelecting ? (widget.isPickup ? 'Select Pickup Location' : 'Select Delivery Location') : 'Task Route'),
@@ -41,37 +90,12 @@ class _MapScreenState extends State<MapScreen> {
       body: Stack(
         children: [
           GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: widget.pickupLocation ?? LatLng(37.4219983, -122.084),
-              zoom: 12,
-            ),
+            initialCameraPosition: initialPosition,
             onMapCreated: (GoogleMapController controller) {
               mapController = controller;
             },
             onTap: _onMapTapped,
-            markers: {
-              if (!widget.isSelecting && widget.pickupLocation != null)
-                Marker(
-                  markerId: const MarkerId('pickup'),
-                  position: widget.pickupLocation!,
-                  infoWindow: const InfoWindow(title: 'Pickup Location'),
-                  icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-                ),
-              if (!widget.isSelecting && widget.deliveryLocation != null)
-                Marker(
-                  markerId: const MarkerId('delivery'),
-                  position: widget.deliveryLocation!,
-                  infoWindow: const InfoWindow(title: 'Delivery Location'),
-                  icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-                ),
-              if (widget.isSelecting && selectedLocation != null)
-                Marker(
-                  markerId: const MarkerId('selectedLocation'),
-                  position: selectedLocation!,
-                  infoWindow: InfoWindow(title: widget.isPickup ? 'Selected Pickup Location' : 'Selected Delivery Location'),
-                  icon: BitmapDescriptor.defaultMarkerWithHue(widget.isPickup ? BitmapDescriptor.hueBlue : BitmapDescriptor.hueOrange),
-                ),
-            },
+            markers: markers,
           ),
           Positioned(
             bottom: 20,

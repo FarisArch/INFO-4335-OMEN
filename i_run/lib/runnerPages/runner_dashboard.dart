@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_run/pages.dart';
 
 class runnerDashboard extends StatefulWidget {
   const runnerDashboard({super.key});
@@ -84,7 +85,13 @@ class _runnerDashboardState extends State<runnerDashboard> {
                         Navigator.pushNamed(context, '');
                       }),
                       _dashboardButton('Personal Information', () {
-                        Navigator.pushNamed(context, '');
+                        Navigator.pushNamed(
+                          context,
+                          '/runnerInfo',
+                          arguments: {
+                            'uid': 'DKvpYsQBdGXr3oQ230fa'
+                          },
+                        );
                       }),
                     ],
                   ),

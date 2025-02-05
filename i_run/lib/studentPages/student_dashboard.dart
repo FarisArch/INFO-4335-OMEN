@@ -73,7 +73,9 @@ class _studentDashboardState extends State<studentDashboard> {
                         Navigator.pushNamed(context, '/studentAssignErrand');
                       }),
                       _dashboardButton('Errand Progress', () {
-                        Navigator.pushNamed(context, '/studentErrandProgress');
+                        Navigator.pushNamed(context, '/studentErrandProgress', arguments: {
+                          'errandId': 'WRnUlMxl9gfVjO4643Ae'
+                        });
                       }),
                     ],
                   ),
@@ -81,10 +83,12 @@ class _studentDashboardState extends State<studentDashboard> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _dashboardButton('Apply as Runner', () {
-                        Navigator.pushNamed(context, ''); //
+                        Navigator.pushNamed(context, '/runnerApplication'); //
                       }),
                       _dashboardButton('Personal Information', () {
-                        Navigator.pushNamed(context, '');
+                        Navigator.pushNamed(context, '/studentInfo', arguments: {
+                          'uid': 'hR3v4p0ncbfo34ryPz9PlrXKKdE3'
+                        });
                       }),
                     ],
                   ),
