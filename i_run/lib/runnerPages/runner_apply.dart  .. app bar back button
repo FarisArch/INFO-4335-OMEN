@@ -131,7 +131,13 @@ class _RunnerApplicationPageState extends State<RunnerApplicationPage> {
       resizeToAvoidBottomInset: false, // Prevent resizing the screen when keyboard is visible
       appBar: AppBar(
         title: const Text("IIUM ERRAND RUNNER"), // App bar title
-        backgroundColor: const Color.fromARGB(255, 8, 164, 92), // Green background color for the app bar
+        backgroundColor: const Color.fromARGB(255, 8, 164, 92), 
+         leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pushReplacementNamed (context,'/runnerDashboard' );
+          },
+        ),// Green background color for the app bar
       ),
       body: SingleChildScrollView(
         // Scrollable body to handle overflow
