@@ -155,7 +155,9 @@ class _RunnerInfoPageState extends State<RunnerInfoPage> {
         backgroundColor: const Color.fromARGB(255, 8, 164, 92),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            Navigator.pushReplacementNamed (context,'/runnerDashboard' );
+          },
         ),
       ),
       body: _isLoading
