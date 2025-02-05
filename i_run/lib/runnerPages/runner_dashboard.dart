@@ -74,7 +74,7 @@ class _runnerDashboardState extends State<runnerDashboard> {
                         Navigator.pushNamed(context, '/runnerAvailableTasks');
                       }),
                       _dashboardButton('Task Progress', () {
-                        Navigator.pushNamed(context, '');
+                        Navigator.pushNamed(context, '/taskProgress');
                       }),
                     ],
                   ),
@@ -82,7 +82,7 @@ class _runnerDashboardState extends State<runnerDashboard> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _dashboardButton('Task History', () {
-                        Navigator.pushNamed(context, '');
+                        Navigator.pushNamed(context, '/taskHistory');
                       }),
                       _dashboardButton('Personal Information', () {
                         Navigator.pushNamed(
