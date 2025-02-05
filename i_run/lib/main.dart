@@ -20,8 +20,8 @@ void main() async {
 
   FirebaseFirestore.instance.settings = Settings(persistenceEnabled: true);
 
-  runApp(
-    MaterialApp(initialRoute: '/login', routes: {
+ runApp(
+    MaterialApp(initialRoute:  '/taskProgress', routes: {
       '/': (context) => Splashscreen(),
       '/studentDashboard': (context) => studentDashboard(),
       '/studentAssignErrand': (context) => studentAssignErrand(),
@@ -29,12 +29,18 @@ void main() async {
       '/runnerDashboard': (context) => runnerDashboard(),
       '/studentInfo': (context) => StudentInformationPage(uid: 'hR3v4p0ncbfo34ryPz9PlrXKKdE3'),
       '/runnerInfo': (context) => RunnerInfoPage(
-            uid: 'DKvpYsQBdGXr3oQ230fa',
-          ),
-      '/studentErrandProgress': (context) => ErrandProgress(errandId: 'WRnUlMxl9gfVjO4643Ae'),
+       uid: 'DKvpYsQBdGXr3oQ230fa',
+      ),
+      '/studentErrandProgress':(context) => ErrandProgress(errandId: 'WRnUlMxl9gfVjO4643Ae'),
       '/runnerApplication': (context) => RunnerApplicationPage(),
       '/signup': (context) => SignUpPage(),
       '/login': (context) => LoginPage(),
+      '/taskHistory': (context) => TaskHistory(),
+      '/taskProgress': (context) {
+          final String taskId = ModalRoute.of(context)?.settings.arguments as String;
+          return TaskProgress(taskId: taskId);
+        },
+
     }),
   );
 }
