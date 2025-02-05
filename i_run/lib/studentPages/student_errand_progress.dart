@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:geocoding/geocoding.dart'; // For converting lat/long to place names
+import 'package:geocoding/geocoding.dart';
 
 class ErrandProgress extends StatefulWidget {
-  final String errandId; // Receiving errand ID to fetch its details
+  final String errandId;
   const ErrandProgress({super.key, required this.errandId});
 
   @override
@@ -11,94 +11,92 @@ class ErrandProgress extends StatefulWidget {
 }
 
 class _ErrandProgressState extends State<ErrandProgress> {
-  String errandStatus = "Errand in progress"; // Default status
-  Map<String, dynamic>? errandDetails; // Stores errand details from Firestore
+  String errandStatus = "Errand in progress"; // Default errand status
+  Map<String, dynamic>? errandDetails;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance; // Firestore instance
 
   @override
   void initState() {
     super.initState();
-    fetchErrandDetails(); // Fetch errand details when screen loads
+    fetchErrandDetails(); // Fetch errand details when widget initializes
   }
 
   Future<void> fetchErrandDetails() async {
     try {
-      // Fetch errand document from Firestore using the given errandId
-      DocumentSnapshot errandSnapshot = await _firestore.collection('errands').doc(widget.errandId).get();
-      
+      DocumentSnapshot errandSnapshot =
+          await _firestore.collection('errands').doc(widget.errandId).get();
+
       if (errandSnapshot.exists) {
-        Map<String, dynamic> data = errandSnapshot.data() as Map<String, dynamic>;
-
-        // Convert delivery location lat/long to place name
-        String deliveryPlaceName = await _convertLatLongToPlaceName(
-          data["deliveryLocation"]["latitude"],
-          data["deliveryLocation"]["longitude"],
-        );
-
-        // Convert pickup location lat/long to place name
-        String pickupPlaceName = await _convertLatLongToPlaceName(
-          data["pickupLocation"]["latitude"],
-          data["pickupLocation"]["longitude"],
-        );
+        Map<String, dynamic> data =
+            errandSnapshot.data() as Map<String, dynamic>;
 
         setState(() {
           errandDetails = data;
-          // Store converted place names into the errandDetails map
-          errandDetails?["deliveryLocation"]["placeName"] = deliveryPlaceName;
-          errandDetails?["pickupLocation"]["placeName"] = pickupPlaceName;
-          // Update status from Firestore data
-          errandStatus = errandDetails?["status"] ?? "Errand in progress";
+          errandStatus = errandDetails?["status"] ?? "Errand in progress"; // Update errand status
         });
       }
     } catch (e) {
-      print("Error fetching errand details: $e");
+      print("Error fetching errand details: $e"); // Error handling
     }
   }
 
-  // Convert latitude and longitude to a readable place name
-  Future<String> _convertLatLongToPlaceName(double latitude, double longitude) async {
+  Future<void> updateStatus(String newStatus) async {
+    bool confirmAction = await _showConfirmationDialog(newStatus);
+    if (!confirmAction) return;
+
     try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
-      if (placemarks.isNotEmpty) {
-        Placemark place = placemarks.first;
-        return "${place.name}, ${place.locality}, ${place.country}"; // Format the place name
-      }
+      await _firestore.collection('errands').doc(widget.errandId).update({"status": newStatus});
+      setState(() {
+        errandStatus = newStatus; // Update UI with new status
+      });
     } catch (e) {
-      print("Error converting lat/long to place name: $e");
+      print("Error updating status: $e"); // Error handling
     }
-    return "Unknown Location"; // Return default value if conversion fails
   }
 
-  // Update errand status in Firestore
-  Future<void> updateErrandStatus(String status) async {
-    try {
-      setState(() => errandStatus = status); // Update UI immediately
-      await _firestore.collection('errands').doc(widget.errandId).update({'status': status});
-    } catch (e) {
-      print("Error updating errand status: $e");
-    }
+  Future<bool> _showConfirmationDialog(String action) async {
+    return await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Confirm $action"),
+        content: Text("Are you sure you want to mark this errand as $action?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false), // Cancel action
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true), // Confirm action
+            child: const Text("Confirm"),
+          ),
+        ],
+      ),
+    ) ?? false;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("IIUM ERRAND RUNNER", style: TextStyle(color: Colors.white)),
-        backgroundColor: Color.fromARGB(255, 8, 164, 92),
+        title: const Text("IIUM ERRAND RUNNER", style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color.fromARGB(255, 8, 164, 92),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pushReplacementNamed(context, '/studentDashboard'), // Navigate back
+        ),
       ),
       body: errandDetails == null
-          ? Center(child: CircularProgressIndicator()) // Show loading indicator while fetching data
+          ? const Center(child: CircularProgressIndicator()) // Show loading indicator while fetching data
           : Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Errand Progress', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 16),
-                  
-                  // Display errand details inside a styled container
+                  const Text('Errand Progress',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 16),
                   Container(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.grey[200],
                       borderRadius: BorderRadius.circular(12),
@@ -106,46 +104,40 @@ class _ErrandProgressState extends State<ErrandProgress> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Task Type: ${errandDetails?["taskType"]}", style: TextStyle(fontSize: 16)),
-                        Text("Date: ${errandDetails?["date"]}", style: TextStyle(fontSize: 16)),
-                        Text("Time: ${errandDetails?["time"]}", style: TextStyle(fontSize: 16)),
-                        Text("Rate: RM ${errandDetails?["price"]}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue)),
-                        SizedBox(height: 8),
-                        Text("Pickup Location: ${errandDetails?["pickupLocation"]["placeName"]}", style: TextStyle(fontSize: 16)),
-                        Text("Delivery Location: ${errandDetails?["deliveryLocation"]["placeName"]}", style: TextStyle(fontSize: 16)),
-                        Text("Description: ${errandDetails?["description"]}", style: TextStyle(fontSize: 16)),
-                        SizedBox(height: 12),
-
-                        // Display errand image if available
-                        errandDetails?["image"] != null
-                            ? Image.network(errandDetails?["image"], width: 100, height: 100, fit: BoxFit.cover)
-                            : SizedBox.shrink(),
+                        _buildInfoRow("Task Type", errandDetails?["taskType"] ?? "N/A", bold: true),
+                        _buildInfoRow("Date", errandDetails?["date"] ?? "N/A", bold: true),
+                        _buildInfoRow("Time", errandDetails?["time"] ?? "N/A", bold: true),
+                        _buildInfoRow("Rate", "RM ${errandDetails?["price"] ?? "N/A"}", bold: false, color: Colors.green),
+                        _buildInfoRow("Pickup Location", "Location (${errandDetails?["pickupLocation"]["latitude"]}, ${errandDetails?["pickupLocation"]["longitude"]})", bold: true),
+                        _buildInfoRow("Delivery Location", "Location (${errandDetails?["deliveryLocation"]["latitude"]}, ${errandDetails?["deliveryLocation"]["longitude"]})", bold: true),
+                        _buildInfoRow("Description", errandDetails?["description"] ?? "N/A", bold: false),
+                        _buildInfoRow("Status", errandStatus, bold: true),
                       ],
                     ),
                   ),
-                  SizedBox(height: 16),
-
-                  // Status selection section
-                  Text('Select Status:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 8),
-                  Column(
-                    children: [
-                      buildStatusButton("On my way!"),
-                      SizedBox(height: 8),
-                      buildStatusButton("Errand in progress"),
-                      SizedBox(height: 8),
-                      buildStatusButton("Task Completed"),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-
-                  // Back button to return to runner dashboard
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushReplacementNamed(context, '/runner_dashboard');
-                    },
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                    child: Text("Back", style: TextStyle(color: Colors.white)),
+                  const SizedBox(height: 20),
+                  Center(
+                    child: Column(
+                      children: [
+                        ElevatedButton(
+                          onPressed: () => updateStatus("Completed"), // Mark errand as completed
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                          ),
+                          child: const Text("Mark as Completed", style: TextStyle(color: Colors.white)),
+                        ),
+                        const SizedBox(height: 10),
+                        ElevatedButton(
+                          onPressed: () => updateStatus("Cancelled"), // Cancel errand
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                          ),
+                          child: const Text("Cancel Errand", style: TextStyle(color: Colors.white)),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -153,14 +145,21 @@ class _ErrandProgressState extends State<ErrandProgress> {
     );
   }
 
-  // Button to update errand status
-  Widget buildStatusButton(String status) {
-    return ElevatedButton(
-      onPressed: () => updateErrandStatus(status), // Update status when pressed
-      style: ElevatedButton.styleFrom(
-        backgroundColor: errandStatus == status ? Colors.green : Colors.grey[600], // Highlight selected status
+  Widget _buildInfoRow(String title, String value, {bool bold = false, Color? color}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: RichText(
+        text: TextSpan(
+          style: TextStyle(fontSize: 16, color: color ?? Colors.black),
+          children: [
+            TextSpan(
+              text: "$title: ",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            TextSpan(text: value, style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal)),
+          ],
+        ),
       ),
-      child: Text(status, style: TextStyle(color: Colors.white)),
     );
   }
 }
