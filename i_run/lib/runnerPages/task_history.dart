@@ -133,6 +133,7 @@ class TaskHistory extends StatelessWidget {
                     return Center(
                       child: Text(
                         'No completed tasks found.',
+                        'No completed tasks found.',
                         style: TextStyle(fontSize: 18, color: Colors.black54),
                       ),
                     );
