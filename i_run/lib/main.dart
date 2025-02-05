@@ -28,7 +28,10 @@ void main() async {
       '/runnerAvailableTasks': (context) => runnerAvailableTasks(),
       '/runnerDashboard': (context) => runnerDashboard(),
       '/studentInfo': (context) => StudentInformationPage(uid: 'hR3v4p0ncbfo34ryPz9PlrXKKdE3'),
-      '/runnerInfo': (context) => RunnerInformationPage(),
+      '/runnerInfo': (context) => RunnerInfoPage(
+       uid: 'DKvpYsQBdGXr3oQ230fa',
+      ),
+      
       '/signup': (context) => SignUpPage(),
       '/login': (context) => LoginPage(),
     }),
