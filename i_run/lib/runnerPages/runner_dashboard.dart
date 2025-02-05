@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:i_run/pages.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Add this import
+import 'package:fluttertoast/fluttertoast.dart'; // Optional, for feedback
 
 class runnerDashboard extends StatefulWidget {
   const runnerDashboard({super.key});
@@ -9,6 +10,19 @@ class runnerDashboard extends StatefulWidget {
 }
 
 class _runnerDashboardState extends State<runnerDashboard> {
+  final FirebaseAuth _auth = FirebaseAuth.instance; // Firebase Auth instance
+
+  // Logout function
+  Future<void> _logout() async {
+    try {
+      await _auth.signOut(); // Sign out the user
+      Fluttertoast.showToast(msg: "Logged out successfully!");
+      Navigator.pushReplacementNamed(context, '/login'); // Redirect to login
+    } catch (e) {
+      Fluttertoast.showToast(msg: "Error logging out: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,10 +56,7 @@ class _runnerDashboardState extends State<runnerDashboard> {
             ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Logout'),
-              onTap: () {
-                // Add logout functionality here
-                Navigator.pushReplacementNamed(context, '/login');
-              },
+              onTap: _logout, // Call the logout function
             ),
           ],
         ),
