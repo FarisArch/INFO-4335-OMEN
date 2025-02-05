@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:geocoding/geocoding.dart'; // For converting lat/long to place names
+import 'package:geocoding/geocoding.dart';
 
 class TaskProgress extends StatefulWidget {
   const TaskProgress({super.key});
@@ -11,21 +11,21 @@ class TaskProgress extends StatefulWidget {
 
 class _TaskProgressState extends State<TaskProgress> {
   String errandStatus = "Errand in progress"; // Default status
-  Map<String, dynamic>? errandDetails; // Stores errand details from Firestore
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance; // Firestore instance
+  Map<String, dynamic>? errandDetails; // Stores errand detail
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance; // 
 
   @override
   void initState() {
     super.initState();
-    fetchTask(); // Fetch task details when screen loads
+    fetchTask(); // Fetch task details
   }
 
   Future<void> fetchTask() async {
     try {
-      // Fetch task document from Firestore using the first task with status "Accepted"
+      
       QuerySnapshot snapshot = await _firestore
           .collection('errands')
-          .where('status', isEqualTo: 'Accepted') // Filter by status "Accepted"
+          .where('status', isEqualTo: 'Accepted') // 
           .limit(1)
           .get();
       
