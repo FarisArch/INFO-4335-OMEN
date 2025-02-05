@@ -42,7 +42,12 @@ class _SignUpPageState extends State<SignUpPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(height: 80, width: 80, child: Placeholder()),
+                // Replacing Placeholder with new logo and other content
+                Image.asset(
+                  'assets/images/logo app.png', // Path to your image asset for the logo
+                  height: 80,
+                  width: 80,
+                ),
                 const SizedBox(height: 10),
                 const Text(
                   "IIUM ERRAND RUNNER (IER)",
