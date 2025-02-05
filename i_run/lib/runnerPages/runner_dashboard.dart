@@ -69,15 +69,23 @@ class _runnerDashboardState extends State<runnerDashboard> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _dashboardButton('Available Tasks', () {}),
-                      _dashboardButton('Task Progress', () {}),
+                      _dashboardButton('Available Tasks', () {
+                        Navigator.pushNamed(context, '/runnerAvailableTasks');
+                      }),
+                      _dashboardButton('Task Progress', () {
+                        Navigator.pushNamed(context, '');
+                      }),
                     ],
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _dashboardButton('Task History', () {}),
-                      _dashboardButton('Personal Information', () {}),
+                      _dashboardButton('Task History', () {
+                        Navigator.pushNamed(context, '');
+                      }),
+                      _dashboardButton('Personal Information', () {
+                        Navigator.pushNamed(context, '');
+                      }),
                     ],
                   ),
                 ],
