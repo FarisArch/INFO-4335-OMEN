@@ -7,22 +7,12 @@
 
 ### Tasks List
 
-| **Name**  | **Week 1 Tasks**                                                                                 | **Week 2 Tasks**                                                                                 |
-|-----------|---------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | **Name**  | **Week 1** | **Week 2** | **Development** |
-|-----------|-----------|-----------|----------------|
+|-----------|-----------|-----------|---------------|
 | **Faris** | - Create GitHub repository <br> - Invite group members <br> - Create Project Gantt Chart <br> - Update Part 1 Report on Preferred Platform <br> - Update Part 1 Report on Features <br> - Check Weekly Progress Report <br> - Update References List | - Update 2.1 Technical Feasibility & Back-end assessment <br> - Update References list <br> - Check Weekly Progress Report <br> - Check Full Case Study 1 Report | - Initialize i-run <br> - Initialize Firebase <br> - Errand database <br> - Student dashboard <br> - Student Assign Errand <br> - Runner Dashboard <br> - Available Task |
 | **Engku** | - Accept GitHub repository invitation <br> - Update Part 1 Report on Target Audience <br> - Update Part 1 Report on Features: <br> &nbsp;&nbsp;&nbsp;&nbsp;1. Manage tasks <br> &nbsp;&nbsp;&nbsp;&nbsp;2. Integration with payment system <br> &nbsp;&nbsp;&nbsp;&nbsp;3. User profiles <br> - Create Weekly Progress Report <br> - Update References List | - Create 2.3 Sequence Diagram <br> - Update Weekly Progress Report <br> - Update References list <br> - Check Full Case Study 1 Report <br> - Peer Evaluation Form <br> - Submit case study repository URL and Weekly Progress Report | - Runners Database <br> - Student Information Page <br> - Student Errand Progress <br> - Runner Application Page <br> - Runner Information Page |
 | **Aiman** | - Accept GitHub repository invitation <br> - Check Weekly Progress Report <br> - Update Part 1 Report on Preferred Platform <br> - Update Part 1 Report on Features <br> - Check Weekly Progress Report <br> - Update References List | - Update 2.2 App Compatibility <br> - Create 2.3 Navigation Flow Diagram <br> - Update References list <br> - Check Weekly Progress Report <br> - Check Full Case Study 1 Report <br> - Peer Evaluation Form <br> - Develop Login & Sign Up feature for the Runner App <br> - Develop Task Progress & Task History for the runner side | - Users Database <br> - Firebase Authentication <br> - Login <br> - Sign Up <br> - Runner Task Progress <br> - Runner Task History |
 
-
-
-
-
-
-
-
----
 ### Purpose of Project
 The Campus Errand Runner app is designed to simplify daily errands for IIUM students, by creating an apps that allow students to done tasks with the help of a runner. For tasks such as collecting parcels, buying itinerary or food supplies and sending item can be done easily by hiring a runner through this app. Other than helping with errands, this app also opens for students that are needing extra money to become a runner, without the need to put any deposits or complicated registration process.
 
